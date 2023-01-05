@@ -36,36 +36,34 @@ int main ()
 	*/
 	
 				/* StrNCmp */
-	/*
-	char s1[] = "aaacd";
-	char s2[] = "aaafd";
+	
+	char s1[] = "Hello";
+	char s2[] = "Helghnj";
 	size_t n = 5;
+	int res = 0;
 	
-	 printf ("The diff of the first n bytes of the strings " 
-	 "lexicographically-wise is: %d \n",StrNCmp(s1, s2, n));
-	*/
-	
+	res = StrNCmp(s1, s2, n);
+	if (res > 0)
+	{	
+	printf ("The first string within the first n bytes of the strings " 
+	"lexicographically-wise greater \n");
+	}
+	else if (res < 0)
+	{	
+	printf ("The first string within the first n bytes of the strings " 
+	"lexicographically-wise less \n");
+	}
+	else
+	{	
+	printf ("The first string within the first n bytes of the strings " 
+	"lexicographically-wise equal \n");
+	}
 					/* StrCaseCmp */
 	/*
-	char s1[] = "BBB";
-	char s2[] = "aaa";
-	int sum;
-	
-	sum = StrCaseCmp(s1, s2);
-	if (0 == sum)
-	{
-		printf ("The strings lexicographically equal\n");
-	}
-	else if (sum > 0)
-	{
-		printf ("The first string is lexicographically greater"
-		" than the second\n"); 
-	}	
-	else
-	{
-		printf ("The first string is lexicographically less" 
-		" than the second\n");
-	}
+	char s1[] = "aaa";
+	char s2[] = "abb";
+	printf ("The diff of the strings lexicographically-wise"
+	" without key-sensetive is: %d \n",StrCaseCmp(s1, s2));
 	*/
 	
 					/* StrChr */
@@ -79,6 +77,57 @@ int main ()
 	" '%s' string  is: '%s' \n", c, s, ptr_to_first_find);    
 	*/
 	
+	/* StrDup */
+	/*
+	char s[] = "abcd";
+	char *duplicated;
+	printf ("The source address is %p and the string is %s \n", s, s);
+	duplicated = StrDup (s);
+	printf ("The duplicated address is %p and the copied string is %s \n", duplicated, duplicated);
+	free (dup);
+	*/
 	
-	return 1;
+	/* StrCat */
+	/*
+	char s[] = "abcd";
+	char dest[100]= "dest is ";
+	
+	printf ("The source address is: %p and the string is: %s \n", s, s);
+	printf ("The dest address before was: %p and the string was: %s \n", dest, dest);
+	printf ("The new dest string is: %s \n", StrCat (dest, s));
+	*/
+	
+		/* StrNCat */
+	/*
+	char s[] = "abcd";
+	char dest[100]= "dest is ";
+	size_t n = 3;
+	
+	printf ("The source address is: %p and the string is: %s \n", s, s);
+	printf ("The dest address before was: %p and the string was: %s \n", dest, dest);
+	printf ("The new dest string is: %s \n", StrNCat (dest, s, n));
+	*/
+	
+	/* StrStr */
+	/*
+	char haystack[] = "aadabuhku";
+	char needle[] = "ab";
+	
+	printf("The address of haystack pointer is: %p \n", haystack);
+	printf("The address of haystack pointer is: %p \n", StrStr (haystack, needle));
+	*/
+	
+	
+	/* StrSpn */
+	/*
+	char *source = "dammn, this!";
+    char *accept = "damnn,";
+    
+    size_t length = StrSpn(source, accept);
+    
+    printf("The length segment of s which consiststing" 
+    " the characters in accept = %ld \n", length);
+	*/
+	
+	return 0;
 }
