@@ -53,8 +53,8 @@ char *StrCpy (char *dest, const char *src)
 	while ('\0' != *src)
 	{
 		*dest = *src;
-		dest++;
-		src++;
+		++dest;
+		++src;
 	}
 	
 	*dest = '\0';
@@ -186,7 +186,7 @@ char *StrChr (const char *s, int c)
 			printf ("The char wasn't found");
 			return NULL;
 		}
-		s++;
+		++s;
 	}
 	return (char *)s;
 }  
@@ -289,19 +289,14 @@ char *StrStr(const char *haystack, const char *needle)
 */
 size_t StrSpn(const char *s, const char *accept)
 {
-	size_t counter = 0;
+	const char *runner = s;
 	
-	if (NULL == s || NULL == accept)
-	{
-		return counter;
-	}
-	
-	while( '\0' != *accept && StrChr (s, *accept++) )
+	while( '\0' != *runner && StrChr (accept, *runner) )
     {
-    	++counter;
+    	++runner;
     }
   
-    return counter;
+    return runner - s;
 }
 
 

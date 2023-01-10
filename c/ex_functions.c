@@ -65,4 +65,18 @@ void SwapTwoSizeTPointers (size_t **num1, size_t **num2)
 
 }
 
+/* ex_4ac swap two size_t pointers with previous func */
+
+void SwapTwoSizeTVariables (size_t **x, size_t **y)
+{
+	if ( NULL == x || NULL == y )
+	{
+		printf("NULL pointer passed to function");
+		exit(-1);
+	}
+	
+	SwapT((size_t *)x, (size_t *)y);	
+	
+}
+
 
