@@ -1,9 +1,11 @@
 
 
+
+
 /*
 print all data types sizes
 */
-void PrintDataType()
+void PrintDataType ()
 {
 	printf("Data type of unsigned char %ld\n", sizeof(unsigned char));
 	printf("Data type of char %ld\n", sizeof(char));
@@ -16,7 +18,6 @@ void PrintDataType()
 	printf("Data type of double %ld\n", sizeof(double));
 	printf("Data type of float %ld\n", sizeof(float));
 }
-
 
 
 void SumOfEachRow (size_t r, size_t c, int arr[][3], int *result)
@@ -34,61 +35,116 @@ void SumOfEachRow (size_t r, size_t c, int arr[][3], int *result)
 	}
 }
 
-
-size_t SumOfOneRow (int arr[], size_t c)
+size_t Josephus (size_t soldier[])
 {
-	size_t i, result = 0;
-	
-	for (i = 0; i <= c; i++)
-	{
-		result += arr[i];	
-		printf ("array [%ld] = %d and the result is: %ld\n", i, arr[i], result);
-	}
-	
-	return result;
-}
-
-size_t IsX (size_t i, int arr[], size_t size, int x)
-{
-	size_t holder = i;
-	size_t flag = 0;
-	
-	for (i = holder + 1; i < size; i++) 
-	{
-		if (i == holder && 1 == flag)
-    	{
-    		return i;
-    	}
-		
-		if (x == arr[i] && i != holder)
-		{
-    		printf ("entered IsX and i =  %ld \n", i);
-    		return i;
-    	}
-    
-    	else if (i >= size && 0 == flag) 
-    	{
-    		i = 0;
-    		flag = 1;
-    	}
-	}
-	return i;
-}
-
-size_t Josephus (int soldier[], size_t size)
-{
-	size_t i, holder = 0;
-
-	do
-	{
-		holder = i;
-		if (holder != IsX (i, soldier, size, 1))
-		{
-			soldier[i] = 0;
-			printf ("entered IsX and now soldier [%ld] = %d \n", i, soldier[i]);
-			i = IsX (i, soldier, size, 1);
-		}
-	} while (i != holder);
-		
+	size_t i = 0;
+	while (soldier[i] != i)
+	{ 
+		soldier[i] = soldier[soldier[i]];
+		i = soldier[i];	
+	}	
 	return i;	
 }
+
+void AllocNew(char **dest, char **envp, size_t count)
+{
+	size_t i = 0;
+	
+	for (i = 0; i < count; i++)
+	{
+		*dest = (char*)malloc((strlen(*envp) + 1) * sizeof(char));
+		if (NULL == dest)
+		{
+			return;
+		}
+		
+		*dest = strcpy(*dest, *envp);
+		++envp;
+		++dest;
+	}
+}
+
+void ToLower(char *dest, char *src)
+{
+	size_t i = 0;
+	size_t size = strlen(src);
+	
+	for (i = 0; i < size; ++i)
+	{
+		dest[i] = tolower(src[i]);
+	}
+}
+
+char **StrCpyLow (char **dest, char **src, size_t count)
+{
+	assert(NULL != dest);
+	assert(NULL != src);
+	
+	while (count)
+	{
+		ToLower(*dest, *src);
+		++dest;
+		++src;
+		--count;
+	}
+	
+	return dest;
+}
+
+void PrintLowCaseEnv (char **dest, size_t count)
+{
+	size_t i = 0;
+	
+	for (i = 0; i < count; i++)
+	{
+		printf("%s\n", *dest);
+		++dest;
+	}
+}
+
+void CleanUp (char **dest, size_t count)
+{
+	size_t i = 0;
+	
+	free(*(dest + i));
+	
+	for (i = 1; i < count; i++)
+	{
+		free(*(dest + i));
+	}
+	free(dest);
+}
+
+void EnvVariableToLowerCopy (char **envp)
+{
+	size_t count = 0;
+	char **low_case_env = NULL;
+	char **buffer = envp;
+	
+	while (0 != *buffer)
+	{
+		++count;
+		++buffer;
+	}
+	
+	low_case_env = (char**)malloc(count * sizeof(char**) + 1);
+	
+	if (NULL == low_case_env)
+	{
+		return;
+	}
+	
+	AllocNew (low_case_env, envp, count);
+	
+	StrCpyLow (low_case_env, envp, count);
+	
+	PrintLowCaseEnv (low_case_env, count);
+	
+	CleanUp (low_case_env, count);
+}
+
+
+
+
+
+

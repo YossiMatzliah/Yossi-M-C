@@ -1,19 +1,26 @@
 #include <stdio.h> /* for printf */
+#include<assert.h> /* for assert */
+#include <ctype.h> /* for tolower */
+#include <string.h> /* for strlen , strcpy */
+#include <stdlib.h> /* for malloc */
 #include "Arrays_and_P2P.c"
-#define SIZE 5
+#define SIZE 100
 
 
 void SumOfEachRowTest ();
-
 void JosephusTest ();
+void EnvVariableToLowerCopy(char **envp);
+char **StrCpyLow (char **dest, char **src, size_t count);
+void PrintStr (char **dest, size_t count);
+void ToLower (char *dest, char *src);
+void CleanUp (char **dest, size_t count);
 
-
-
-int main ()
+int main (int argc, char **argv, char **envp)
 {
 	SumOfEachRowTest (); 
 	PrintDataType();
 	JosephusTest ();
+	EnvVariableToLowerCopy(envp);
 	
 	return 0;
 }
@@ -36,15 +43,20 @@ void SumOfEachRowTest ()
 
 void JosephusTest ()
 {
-	int soldiers[SIZE] = {1};
-	size_t size = SIZE - 1;
+	size_t soldiers[SIZE] = {0};
+	size_t size = SIZE;
 	size_t i = 0;
 	
-	for (i = 0; i <= size; i++) 
+	for (i = 0; i < size; i++) 
 	{   
-    	soldiers[i] = 1;
+    	soldiers[i] = i + 1;
 	}
+	soldiers[size - 1] = 0;
 	
-	printf ("The last man standing is: %ld \n ", Josephus (soldiers, size));
+	printf ("The last man standing index is: %ld \n" 
+	"Congrats!\n ", Josephus (soldiers));
 }
+
+
+
 
