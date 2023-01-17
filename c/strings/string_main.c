@@ -1,8 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <ctype.h>
-#include "string_funcs.c"
-
+#include "string_funcs.h"
 
 int main ()
 {
@@ -58,6 +54,7 @@ int main ()
 	printf ("The first string within the first n bytes of the strings " 
 	"lexicographically-wise equal \n");
 	}
+					
 					/* StrCaseCmp */
 	/*
 	char s1[] = "aaa";

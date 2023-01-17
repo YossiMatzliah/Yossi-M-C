@@ -1,3 +1,8 @@
+#include <stdio.h>
+#include <stddef.h>
+#include <stdlib.h>
+#include <ctype.h>
+
 
 /* StrLen: return the length of a pointer */
 size_t StrLen (const char *s)
