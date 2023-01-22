@@ -13,11 +13,11 @@
 
 
 typedef struct element_S el;
-
-typedef void (*clean_up_t)(el *);
-typedef int (*add_to_element_t)(el *, int);
-typedef void (*print_element_t)(el *);
 typedef enum {SUCCESS = 0, FAILURE = 1, ALLOC_ERR} status_t;
+typedef void (*clean_up_t)(el *);
+typedef status_t (*add_to_element_t)(el *, int);
+typedef void (*print_element_t)(el *);
+
 
 struct element_S
 {
@@ -32,10 +32,10 @@ static void NoCleanUp (el element_type[]);
 static void PrintInt (el element_type[]);
 static void PrintFloat (el element_type[]);
 static void PrintStr (el element_type[]);
-static int AddToInt (el element_type[], int num_to_add);
-static int AddToFloat (el element_type[], int num_to_add);
+static status_t AddToInt (el element_type[], int num_to_add);
+static status_t AddToFloat (el element_type[], int num_to_add);
 static int CountDigits(int num);
-static int AddToStr (el element_type[], int num_to_add);
+static status_t AddToStr (el element_type[], int num_to_add);
 
 status_t InitElements (el element_type[SIZE])
 {
@@ -126,13 +126,13 @@ static void PrintStr (el element_type[])
 	printf("%s,  ", (char *) (element_type->value));
 }
 
-static int AddToInt (el element_type[], int num_to_add)
+static status_t AddToInt (el element_type[], int num_to_add)
 {
 	(*((int *)&(element_type->value))) += num_to_add;
 	return SUCCESS;
 }
 
-static int AddToFloat (el element_type[], int num_to_add)
+static status_t AddToFloat (el element_type[], int num_to_add)
 {
 	(*((float *)&(element_type->value))) += num_to_add;
 	return SUCCESS;
@@ -151,7 +151,7 @@ static int CountDigits(int num)
 	return digits_counter;
 }
 
-static int AddToStr (el element_type[], int num_to_add)
+static status_t AddToStr (el element_type[], int num_to_add)
 {
 	int digits_in_add = CountDigits(num_to_add);
 	int len = strlen(element_type->value);
