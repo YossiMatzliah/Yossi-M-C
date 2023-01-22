@@ -8,7 +8,7 @@ struct handler
 	chain_func cmp_func;
 };
 
-enum RetrunType {success, failure};
+enum RetrunType {SUCCESS, FAILURE};
 enum RetrunType status;
 
 void Print (int a)
@@ -21,7 +21,7 @@ int CmpFunc(const char *input_str, const char *str)
 	assert(NULL != input_str);
 	assert(NULL != str);
 	
-	status = failure;
+	status = FAILURE;
 
 	while('\0' != *input_str && *input_str == *str)
 	{
@@ -31,20 +31,20 @@ int CmpFunc(const char *input_str, const char *str)
 	
 	if (0 == *input_str - *str)
 	{
-		status = success;
+		status = SUCCESS;
 	}
 	
 	else
 	{
-		status = failure;
+		status = FAILURE;
 	}
 	
 	return status;
 }
 
-int CmpFuncDef(const char *input_str, const char *str)
+int CmpFuncDef(const char *input_str, const char *str) /* should be func name AlwaysMatch  */
 {	
-	status = success;	
+	status = SUCCESS;	
 	return status;
 }
 
@@ -55,21 +55,21 @@ int AddToStartCmp(const char *input_str, const char *str)
 	
 	if ('<' == *input_str)
 	{
-		status = success;	
+		status = SUCCESS;	
 	}
 	
 	else
 	{
-		status = failure;
+		status = FAILURE;
 	}
 	
 	return status;
 }
 
-int Default(const char *file_name, const char *input_str)
+int Default(const char *file_name, const char *input_str) /* should say what the func does AppenedToFile */
 {
 	FILE *fp;
-	status = success;
+	status = SUCCESS;
 	
 	assert(NULL != file_name);
 	assert(NULL != input_str);
@@ -79,7 +79,7 @@ int Default(const char *file_name, const char *input_str)
 	if (NULL == fp)
     {
         printf("Could not open file %s", file_name);
-        status = failure;
+        status = FAILURE;
     }
   
     fputs(input_str, fp);
@@ -103,13 +103,13 @@ int Default(const char *file_name, const char *input_str)
     return status;	
 }
 
-int AddToHeadOfFile(const char *file_name, const char *input_str)
+int AddToHeadOfFile(const char *file_name, const char *input_str) /* can do optimize sol: w input on new file get from original remove the original and change name of new to original */ /* also should cut in to smaller functions like MakeNewFile CpyToFile RemoveFile  */
 {
 	FILE *fp;
 	FILE *tmp_file;
 	char ch;
 	++input_str;
-	status = success;
+	status = SUCCESS;
 	
 	printf("entered to < func\n");
 	assert(NULL != file_name);
@@ -120,7 +120,7 @@ int AddToHeadOfFile(const char *file_name, const char *input_str)
 	
 	if (NULL == fp || NULL == tmp_file)
     {
-        printf("\nUnable to open file.\n");
+        printf("\nUnable to open file.\n");	/* should close the fp and put perror() and OPEN_FILE_ERR */
         exit(-1);
     }
     
@@ -144,7 +144,7 @@ int AddToHeadOfFile(const char *file_name, const char *input_str)
     if (NULL == fp || NULL == tmp_file)
     {
         printf("\nUnable to open file.\n");
-        status = failure;
+        status = FAILURE;
     }
     
     ch = fgetc(tmp_file);
@@ -169,8 +169,8 @@ int CountLines(const char *file_name, const char *str)
 {
 	FILE *fp;
 	size_t count = 0;
-	char c = 0;
-	status = success;
+	char c = '\0';
+	status = SUCCESS;
 	
 	assert(NULL != file_name);
 	assert(NULL != str);
@@ -180,11 +180,11 @@ int CountLines(const char *file_name, const char *str)
 		
 	if (NULL == fp)
     {
-        printf("Could not open file %s", file_name);
-        status = failure;
+        printf("Could not open file %s", file_name);  /* perror*/ 
+        status = FAILURE; /* OPEN_FILE_ERR */
     }
     
-    for (c = getc(fp); EOF != c; c = getc(fp))
+    for (c = getc(fp); EOF != c; c = getc(fp))  /* can do while (EOF != c) */
     {	
     	if ('\n' == c)
     	{
@@ -194,7 +194,7 @@ int CountLines(const char *file_name, const char *str)
     
     fclose(fp);
     
-    printf("The file %s has %li lines\n", file_name, count);
+    printf("The file %s has %li lines\n", file_name, count); /* need if failed to close status = CLOSE_FILE_ERR */
 
     return status;	
 }
@@ -207,28 +207,29 @@ int RemoveFile(const char *file_name, const char *str)
 	
 	if (remove(file_name) == 0)
 	{
-    	printf("Deleted successfully\n");
-		status = success;
+    	printf("Deleted SUCCESSfully\n"); 
+		status = SUCCESS;
     }
     
    	else
    	{
-    	printf("Unable to delete the file\n");
-    	status = failure;
+    	printf("Unable to delete the file\n"); /* perror("fail to remove"); */
+    	status = FAILURE; /* should make more statuses like REMOVE_ERROR */
     }
    	return status;
 }
 
 int ExitFile(const char *input_str, const char *str)
 {
+	status = SUCCESS
 	exit(0);
 }
 
-void Master(const char *file)
+int Master(const char *file) /* should be *file_name for better understanding */
 {
-	char input_str[100];
+	char input_str[100]; /* MAX_INPUT_SIZE and define it on top */
 	size_t i = 0;
-	
+	/* should be outside or be initialize with malloc */
 	struct handler hand_arr[5] = 
 	{ 
 		{"-exit", &ExitFile, &CmpFunc},
@@ -243,19 +244,20 @@ void Master(const char *file)
 	while(1)
 	{
 		printf("Please enter a string, write \"-exit\" for exit\n");
-		scanf("%s", input_str);
+		scanf("%s", input_str); /* fgets(input, MAX_INPUT_SIZE, stdin); */
 		
 		for (i = 0; i < 5; ++i)
 		{
 			
-			if(0 == ((*(hand_arr[i].cmp_func))(input_str, (char *) hand_arr[i].str)))
+			if(0 == ((*(hand_arr[i].cmp_func))(input_str, (char *) hand_arr[i].str))) /* no need deref(*) and it's const, no need to cast */
 			{
 				(*hand_arr[i].action_func)(file, input_str);
-				i = 5;      /* To break the loop */
+				i = 5;      /* To break the loop can put break or add && in the for () loop line */
 			}
 	
 		}
 	}
+	return status;
 }
 
 
