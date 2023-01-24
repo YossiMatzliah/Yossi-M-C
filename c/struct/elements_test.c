@@ -1,8 +1,8 @@
 /* MACROS */
-#define MAX2(a, b)  (a > b) ? a : b
-#define MAX3(a, b, c)  MAX2(a,b) > c ? MAX2(a,b) : c 
-#define SIZEOF(object) (char *)(&object+1) - (char *)(&object)
-#define DECLARE_TYPE(type) __typeof__(type) newvar
+#define MAX2(a, b)  (a > b) ? a : b  //should be every element with ()
+#define MAX3(a, b, c)  MAX2(a,b) > c ? MAX2(a,b) : c //should be every element with ()
+#define SIZEOF(object) (char *)(&object+1) - (char *)(&object) //should be every element with ()
+#define DECLARE_TYPE(type) __typeof__(type) newvar //SIZEOFTYPE(a) ((size_t)(%a+1) - (size_t)(&a))
 /* Till here */
 #include "elements.h"
 

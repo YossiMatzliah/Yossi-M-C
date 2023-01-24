@@ -1,7 +1,7 @@
 /********************************
 *	Developper: Yossi Matzliah	*
-*	Date: 		21/01/2023		*
-*	Reviewer:					*
+*	Date: 		22/01/2023		*
+*	Reviewer:	Harel			*
 ********************************/
 
 
@@ -101,38 +101,38 @@ void MainProcessor ()
 }
 
 
-static void CleanUp (el element_type[])
+static void CleanUp (el element_type[]) //func should be pointer arithmetic
 {
 	free(element_type->value);
 }
 
-static void NoCleanUp (el element_type[])
+static void NoCleanUp (el element_type[]) //func should be pointer arithmetic
 {
 	(void)element_type;
 }
 
-static void PrintInt (el element_type[])
+static void PrintInt (el element_type[]) //func should be pointer arithmetic
 {
 	printf("%d,  ", *((int *)&(element_type->value)));
 }
 
-static void PrintFloat (el element_type[])
+static void PrintFloat (el element_type[]) //func should be pointer arithmetic
 {
 	printf("%.2f,  ", *((float *)&(element_type->value)));
 }
 
-static void PrintStr (el element_type[])
+static void PrintStr (el element_type[]) //func should be pointer arithmetic
 {
 	printf("%s,  ", (char *) (element_type->value));
 }
 
-static status_t AddToInt (el element_type[], int num_to_add)
+static status_t AddToInt (el element_type[], int num_to_add) //func should be pointer arithmetic
 {
 	(*((int *)&(element_type->value))) += num_to_add;
 	return SUCCESS;
 }
 
-static status_t AddToFloat (el element_type[], int num_to_add)
+static status_t AddToFloat (el element_type[], int num_to_add) //func should be pointer arithmetic
 {
 	(*((float *)&(element_type->value))) += num_to_add;
 	return SUCCESS;
@@ -151,7 +151,7 @@ static int CountDigits(int num)
 	return digits_counter;
 }
 
-static status_t AddToStr (el element_type[], int num_to_add)
+static status_t AddToStr (el element_type[], int num_to_add) //func should be pointer arithmetic
 {
 	int digits_in_add = CountDigits(num_to_add);
 	int len = strlen(element_type->value);
