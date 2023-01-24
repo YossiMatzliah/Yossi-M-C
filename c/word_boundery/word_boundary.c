@@ -92,33 +92,34 @@ void *MemCpy (void *dest, const void * src, size_t n)
 
 void *MemMove (void *dest, const void *src, size_t n)
 {
-	size_t diff = (size_t)dest - (size_t)src;
+	char *p_dest = NULL;
+	char *p_src = NULL;
 	size_t i = 0;
-	unsigned char *dest_runner = (unsigned char*)((size_t *)dest + n - 1);
-	unsigned char *src_runner = (unsigned char *)((size_t) src + n - 1);
 	
-	if(((size_t)src < (size_t)dest) && (((size_t)src + n) > (size_t)dest))
+	if (dest <= src || (char *)dest >= ((char *)src + n)) 
 	{
-		for (i = 0; i < (n - diff); ++i)
+		return MemCpy (dest, src, n);
+	} 
+    
+	else 
+	{
+		p_dest = (char *)dest + n - 1;
+		p_src = (char *)src + n - 1;
+
+		for (i = 0; i < n; ++i) 
 		{
-			*dest_runner = *src_runner;
-			--dest_runner;
-			--src_runner;
+			*p_dest = *p_src;
+			--p_dest;
+			--p_src;
 		}
-		MemCpy(dest, src, diff);
 	}
-	else
-	{
-	MemCpy(dest, src, n);
-	}
-								
 	return dest;
 }
 
 void WordBounderyTest ()
 {
-	char text1[] = "1234567890zxcvbnmlkjhgf";
-	char text2[] = "qwertyuiopasdfghj987654";
+	char text1[] = "1234567890";
+	char text2[] = "lmnopqrstuvwxyz98765432";
 	printf ("Before changes:\n%s \n",text1);
 	printf ("%s \n",text2);
 	MemSet ((void *)text1, 'B', 9);
@@ -127,10 +128,10 @@ void WordBounderyTest ()
 	printf ("%s \n",text2);
 	printf ("__________ \n");
 	
-	memcpy ((text1),(text2), 7);
+	MemCpy ((text1),(text1 + 2), 3);
 	printf ("After MemCpy:  %s \n",text1);
 	
-	memmove ((text1),(text1 + 8), 18);
+	MemMove ((text1+2),(text1), 3);
 	printf ("After MemMove: %s \n",text1);
 }
 
