@@ -4,8 +4,5 @@
 int main ()
 {
 	WordBounderyTest();
-	
-	
-	
 	return 0;
 }
