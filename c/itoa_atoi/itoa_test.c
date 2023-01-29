@@ -1,7 +1,7 @@
 /********************************
 *	Developper: Yossi Matzliah	*
-*	Date: 		25/01/2023		*
-*	Reviewer:	Nir				*
+*	Date: 		28/01/2023		*
+*	Reviewer:	Yotam			*
 ********************************/
 
 #include "itoa.h"
@@ -41,7 +41,6 @@ int CountDigits(int num)
 	
 	return digits_counter;
 }
-
 
 static void AtoIBaseTenTest()
 {
@@ -101,6 +100,7 @@ static void ItoaForAnyBaseTest()
 	int num1 = 12;
 	int num2 = 0;
 	int num3 = 12345678;
+	int base = 2;
 	
 	char *str1 = (char *)malloc(36 * sizeof(char) + 1);
 	char *str2 = (char *)malloc(36 * sizeof(char) + 1);
@@ -108,40 +108,44 @@ static void ItoaForAnyBaseTest()
 	
 	printf("Tests for ItoaForAnyBase :\n\n");
 	
-	printf("%d: to base 2. \n 1100 =? "
-	"%s\nSUCCESS\n", num1, ItoaForAnyBase(num1, str1, 2));
-	printf("%d: to base 2. \n 0 =? "
-	"%s\nSUCCESS\n", num2, ItoaForAnyBase(num2, str2, 2));
-	printf("%d: to base 2. \n 101111000110000101001110 =? "
-	"%s\nSUCCESS\n", num3, ItoaForAnyBase(num3, str3, 2));
+	printf("%d: to base %d. \n 1100 =? "
+	"%s\nSUCCESS\n", num1, base, ItoaForAnyBase(num1, str1, base));
+	printf("%d: to base %d. \n 0 =? "
+	"%s\nSUCCESS\n", num2, base, ItoaForAnyBase(num2, str2, base));
+	printf("%d: to base %d. \n 101111000110000101001110 =? "
+	"%s\nSUCCESS\n", num3, base, ItoaForAnyBase(num3, str3, base));
 	
-	printf("%d: to base 8. \n 14 =? "
-	"%s\nSUCCESS\n", num1, ItoaForAnyBase(num1, str1, 8));
-	printf("%d: to base 8. \n 0 =? "
-	"%s\nSUCCESS\n", num2, ItoaForAnyBase(num2, str2, 8));
-	printf("%d: to base 8. \n 57060516 =? "
-	"%s\nSUCCESS\n", num3, ItoaForAnyBase(num3, str3, 8));
+	base = 8;
+	printf("%d: to base %d. \n 14 =? "
+	"%s\nSUCCESS\n", num1, base, ItoaForAnyBase(num1, str1, base));
+	printf("%d: to base %d. \n 0 =? "
+	"%s\nSUCCESS\n", num2, base, ItoaForAnyBase(num2, str2, base));
+	printf("%d: to base %d. \n 57060516 =? "
+	"%s\nSUCCESS\n", num3, base, ItoaForAnyBase(num3, str3, base));
 	
-	printf("%d: to base 10. \n 12 =? "
-	"%s\nSUCCESS\n", num1, ItoaForAnyBase(num1, str1, 10));
-	printf("%d: to base 10. \n 0 =? "
-	"%s\nSUCCESS\n", num2, ItoaForAnyBase(num2, str2, 10));
-	printf("%d: to base 10. \n 12345678 =? "
-	"%s\nSUCCESS\n", num3, ItoaForAnyBase(num3, str3, 10));
-
-	printf("%d: to base 16. \n C =? "
-	"%s\nSUCCESS\n", num1, ItoaForAnyBase(num1, str1, 16));
-	printf("%d: to base 16. \n 0 =? "
-	"%s\nSUCCESS\n", num2, ItoaForAnyBase(num2, str2, 16));
-	printf("%d: to base 16. \n BC614E =? "
-	"%s\nSUCCESS\n", num3, ItoaForAnyBase(num3, str3, 16));
+	base = 10;
+	printf("%d: to base %d. \n 12 =? "
+	"%s\nSUCCESS\n", num1, base, ItoaForAnyBase(num1, str1, base));
+	printf("%d: to base %d. \n 0 =? "
+	"%s\nSUCCESS\n", num2, base, ItoaForAnyBase(num2, str2, base));
+	printf("%d: to base %d. \n 12345678 =? "
+	"%s\nSUCCESS\n", num3, base, ItoaForAnyBase(num3, str3, base));
 	
-	printf("%d: to base 36. \n C =? "
-	"%s\nSUCCESS\n", num1, ItoaForAnyBase(num1, str1, 36));
-	printf("%d: to base 36. \n 0 =? "
-	"%s\nSUCCESS\n", num2, ItoaForAnyBase(num2, str2, 36));
-	printf("%d: to base 36. \n 7CLZI =? "
-	"%s\nSUCCESS\n", num3, ItoaForAnyBase(num3, str3, 36));
+	base = 16;
+	printf("%d: to base %d. \n C =? "
+	"%s\nSUCCESS\n", num1, base, ItoaForAnyBase(num1, str1, base));
+	printf("%d: to base %d. \n 0 =? "
+	"%s\nSUCCESS\n", num2, base, ItoaForAnyBase(num2, str2, base));
+	printf("%d: to base %d. \n BC614E =? "
+	"%s\nSUCCESS\n", num3, base, ItoaForAnyBase(num3, str3, base));
+	
+	base = 36;
+	printf("%d: to base %d. \n C =? "
+	"%s\nSUCCESS\n", num1, base, ItoaForAnyBase(num1, str1, base));
+	printf("%d: to base %d. \n 0 =? "
+	"%s\nSUCCESS\n", num2, base, ItoaForAnyBase(num2, str2, base));
+	printf("%d: to base %d. \n 7CLZI =? "
+	"%s\nSUCCESS\n", num3, base, ItoaForAnyBase(num3, str3, base));
 	
 	free(str1);
 	free(str2);
@@ -150,6 +154,7 @@ static void ItoaForAnyBaseTest()
 
 static void AtoIForAnyBaseTest()
 {
+	int base = 10;
 	const char *str1 = "0123456789";
 	const char *str2 = "68ABCDEF";
 	const char *str3 = "-156";
@@ -157,15 +162,16 @@ static void AtoIForAnyBaseTest()
 	printf("Tests for AtoIForAnyBase :\n\n");
 	
 	printf("String1 is: %s\n", str1);
-	printf("In base 10 is:\n 123456789 =? %d\n\nSUCCESS!\n\n", AtoIForAnyBase(str1, 10));
+	printf("In base %d is:\n 123456789 =? %d\n\nSUCCESS!\n\n", base, AtoIForAnyBase(str1, base));
 	
-	CompareAtois(str1, 10);
+	CompareAtois(str1, base);
 	
+	printf("%s in base %d is:\n -156\n", str3, base);
+	CompareAtois(str3, base);
+	
+	base = 16;
 	printf("String2 is: %s\n", str2);
-	printf("In base 16 is:\n 1756089839 =? %d\n\nSUCCESS!\n\n", AtoIForAnyBase(str2, 16));
-	
-	printf("%s in base 10 is:\n -156\n", str3);
-	CompareAtois(str3, 10);
+	printf("In base %d is:\n 1756089839 =? %d\n\nSUCCESS!\n\n", base, AtoIForAnyBase(str2, base));
 }
 
 static void CompareAtois(const char *str, int base)
@@ -193,11 +199,11 @@ static void ThreeStrTest()
 	printf ("Test Three Strings:\n");
 	printf ("check1:\nstr1 = %s, str2 = %s, str3 = %s\n\n", str1, str2, str3);
 	printf ("should print 'w' 'o' and 'r'\n");
-	PrintCharInFirstTwoStrNotInLast(str1, str2, str3);	
+	LettersOnlyInFirstTwo(str1, str2, str3);	
 	
 	printf ("check2:\nstr1 = %s, str2 = %s, str3 = %s\n\n", str4, str5, str6);
 	printf ("should print 'L' and 'O' \n");
-	PrintCharInFirstTwoStrNotInLast(str4, str5, str6);	
+	LettersOnlyInFirstTwo(str4, str5, str6);	
 }
 
 void IsLittleEndianTest()

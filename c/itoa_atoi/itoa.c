@@ -1,7 +1,7 @@
 /********************************
 *	Developper: Yossi Matzliah	*
-*	Date: 		25/01/2023		*
-*	Reviewer:	Nir				*
+*	Date: 		28/01/2023		*
+*	Reviewer:	Yotam			*
 ********************************/
 
 #include <string.h> /* strlen */
@@ -10,7 +10,9 @@
 #define ALPHABET_NUM 26
 
 typedef enum flag_t {NEG = -1, ZERO, POS} flag_t;
+
 flag_t flag = POS;	
+
 int TenExpN(int n)
 {
 	int i = 0;	
@@ -39,7 +41,7 @@ int AtoIBaseTen(const char *str)
 			flag = NEG;
 		}
 		
-		num += ((*(str + i) - '0')*(TenExpN(len - i - 1)));
+		num += ((*(str + i) - '0') * (TenExpN(len - i - 1)));
 	}
 	
 	if (NEG == flag)
@@ -108,7 +110,6 @@ char *ItoaForAnyBase(int num, char *str, int base)
 		++str;
 	}
 
-
 	while (base <= tmp_num)
 	{
 		++count;
@@ -118,7 +119,8 @@ char *ItoaForAnyBase(int num, char *str, int base)
 	runner += count;
 	*runner = '\0';
 	
-	do {
+	do 
+	{
 		*--runner = (num % base) + (num % base > 9 ? 'A' - 10 : '0');
 		num /= base;
 	} while (num);
@@ -139,17 +141,20 @@ int AtoIForAnyBase(const char *str, int base)
 	
 	while('\0' != *str)
 	{
-		tmp = (int)*str;
+		tmp = *str;
+		
 		if(tmp >= '0' && tmp <= '9')
 		{
 			tmp -= '0';
 		}
+		
 		else
 		{
 		 	if(tmp >= 'A' && tmp <= 'Z') 
 			{
-				tmp -= 55;
+				tmp -= ('A' - 10);
 			}
+			
 			else
 			{
 				break;
@@ -187,7 +192,6 @@ static void PrintUpperCaseMutualChar(char *str)
 
 	for(i = 0; i < ALPHABET_NUM + 1; ++i)
 	{
-		
 		if('2' == str[i])
 		{
 			printf("%c ", (char)('A' + i));
@@ -196,17 +200,10 @@ static void PrintUpperCaseMutualChar(char *str)
 	printf("\n");
 }
 
-void PrintCharInFirstTwoStrNotInLast(char *str1, char *str2, char *str3)
+void LettersOnlyInFirstTwo(char *str1, char *str2, char *str3)
 {
-	size_t temp_arr_length = ALPHABET_NUM + 1;
-	char *lower_case_abc = (char *)calloc(temp_arr_length, sizeof(char));
-	char *upper_case_abc = (char *)calloc(temp_arr_length, sizeof(char));
-	
-	if (NULL == lower_case_abc || NULL == upper_case_abc)
-	{
-		printf("String allocation faild\n");
-		exit(1); 
-	}
+	char lower_case_abc[ALPHABET_NUM + 1] = {0};
+	char upper_case_abc[ALPHABET_NUM + 1] = {0};
 	
 	while ('\0' != *str1)
 	{
@@ -214,6 +211,7 @@ void PrintCharInFirstTwoStrNotInLast(char *str1, char *str2, char *str3)
 		{
 			lower_case_abc[*str1 - 'a'] = '1';
 		}
+		
 		else if (0 != isupper(*str1))
 		{
 			upper_case_abc[*str1 - 'A'] = '1';
@@ -227,6 +225,7 @@ void PrintCharInFirstTwoStrNotInLast(char *str1, char *str2, char *str3)
 		{
 			lower_case_abc[*str2 - 'a'] = '2';
 		}
+		
 		else if ((0 != isupper(*str2)) && ('1' == upper_case_abc[*str2 - 'A']))
 		{
 			upper_case_abc[*str2 - 'A'] = '2';
@@ -240,6 +239,7 @@ void PrintCharInFirstTwoStrNotInLast(char *str1, char *str2, char *str3)
 		{
 			lower_case_abc[*str3 - 'a'] = '0';
 		}
+		
 		else if (0 != isupper(*str3))
 		{
 			upper_case_abc[*str3 - 'A'] = '0';
@@ -249,9 +249,6 @@ void PrintCharInFirstTwoStrNotInLast(char *str1, char *str2, char *str3)
 
 	PrintLowerCaseMutualChar(lower_case_abc);
 	PrintUpperCaseMutualChar(upper_case_abc);
-	
-	free(lower_case_abc);
-	free(upper_case_abc);
 }
 
 void IsLittleEndian()
@@ -263,6 +260,7 @@ void IsLittleEndian()
     { 
 		printf("Your system is Little endian.\n");
 	}
+	
 	else
 	{
 		printf("Your system is Big endian.\n");

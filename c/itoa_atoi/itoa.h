@@ -9,7 +9,7 @@ char *ItoABaseTen(int num, char *str);
 int CountDigits(int num);
 char *ItoaForAnyBase(int num, char *str, int base);
 int AtoIForAnyBase(const char *str, int base);
-void PrintCharInFirstTwoStrNotInLast(char *str1, char *str2, char *str3);
+void LettersOnlyInFirstTwo(char *str1, char *str2, char *str3);
 void IsLittleEndian();
  
 #endif
