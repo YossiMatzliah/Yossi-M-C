@@ -20,18 +20,24 @@ struct stack
 
 stack_t *StackCreate(size_t capacity, size_t item_size)
 {
-	stack_t *stack = (stack_t *)malloc(sizeof(stack_t));
+	stack_t *stack = NULL;
+	
+	assert(0 != capacity);
+	assert(0 != item_size);
+	
+	stack = (stack_t *)malloc(sizeof(stack_t));
 	stack->data = malloc(capacity * item_size);
 	
 	if (NULL == stack)
 	{
-		printf ("Memory allocation for the satck failed \n");
+		perror("Memory allocation for the satck failed \n");
 		return NULL;
 	}
 
 	if (NULL == stack->data)
 	{
-		printf ("Memory allocation for the data array failed \n");
+		perror("Memory allocation for the data array failed \n");
+		free(stack);
 		return NULL;
 	}
 	
@@ -44,6 +50,7 @@ stack_t *StackCreate(size_t capacity, size_t item_size)
 
 void StackDestroy(stack_t *stack)
 {
+	memset(stack->data, 0, stack->capacity * stack->i_size);
 	free(stack->data);
 	free(stack);
 }
@@ -76,13 +83,12 @@ void StackPop(stack_t *stack)
 
 void StackPush(stack_t *stack, const void *item)
 {
- 
 	assert(NULL != stack);
 	assert(NULL != item);
 	assert(stack->top < stack->capacity);
  
 	++stack->top;
-	memcpy((char*)stack->data + (stack->top * stack->i_size), item, stack->i_size);   
+	memcpy((char *)stack->data + (stack->top * stack->i_size), item, stack->i_size);   
 }
 
 void* StackPeek(const stack_t *stack)
@@ -90,7 +96,7 @@ void* StackPeek(const stack_t *stack)
 	assert(NULL != stack);
 	assert(!StackIsEmpty(stack));
 	
-	return (char*)stack->data + (stack->top * stack->i_size);
+	return (char *)stack->data + (stack->top * stack->i_size);
 }
 
 size_t StackCapacity(const stack_t *stack)
