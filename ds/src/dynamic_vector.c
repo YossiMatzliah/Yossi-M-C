@@ -72,7 +72,7 @@ int VectorPushBack(vector_t *vector, const void *element)
 	assert(vector->size < vector->capacity);
 	
 	memcpy((char *)vector->data + (vector->size * vector->element_size), element, vector->element_size);   
-	if (vector->size >= (vector->capacity - 1))
+	if (vector->size == (vector->capacity - 1)) 
 	{
 		new_data = realloc(vector->data, GROWTH_FACTOR * vector->capacity * vector->element_size);
 		if (NULL == new_data)
@@ -93,26 +93,15 @@ int VectorPushBack(vector_t *vector, const void *element)
 
 void VectorPopBack(vector_t *vector)
 {
-	void *new_data = NULL;
-	
 	assert(NULL != vector);
-	assert(vector->size > 0);
+	assert(vector->size > 0); /* (add assert(!IsEmpty(vector))*/
 	
 	--vector->size;
-	if (vector->size <= (vector->capacity) / SHRINK_THRESHOLD)
+	if (vector->size <= (vector->capacity) / SHRINK_THRESHOLD) /* add minimal cap */
 	{
-		new_data = realloc(vector->data, vector->element_size * 
-		(vector->capacity / GROWTH_FACTOR));
-		if (NULL == new_data)
-		{	
-			return;
-		}
-		
-		else
-		{
-			vector->capacity /= GROWTH_FACTOR;
-			vector->data = new_data;
-		}
+		vector->data = realloc(vector->data, vector->element_size * (vector->capacity / GROWTH_FACTOR));
+		/*add the if realloc failed and put return to break*/
+		vector->capacity /= GROWTH_FACTOR;	
 	}
 }
 
@@ -150,6 +139,7 @@ int VectorShrinkToSize(vector_t *vector)
 	realoc_flag_t realloc_flag = SUCCESS;
 	
 	assert(NULL != vector);
+	/* add assert(!IsEmpty(vector)) */
 	
 	vector->data = realloc(vector->data, (vector->size * vector->element_size) + 1);
 	if (NULL == vector)
