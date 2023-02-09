@@ -88,25 +88,22 @@ iterator_t SLLEndIter(const sll_t *sll)
 
 iterator_t SLLRemove(iterator_t iterator)
 {
-	iterator_t next_iter = NULL;
+	iterator_t remove_node = NULL;
 	
 	assert(NULL != iterator);
 		
-	next_iter = iterator->next;
+	remove_node = iterator->next;
 	
-	if (NULL == iterator->next)
-	{
-		free(next_iter);
-		return NULL;
+	if (NULL != iterator->next) 
+    {
+		iterator->data = SLLNextIter(iterator)->data;
+		iterator->next = SLLNextIter(iterator)->next;
+		free(remove_node);
 	}
-	
-	iterator->data = next_iter->data;
-	iterator->next = next_iter->next;
-	free(next_iter);
-	
+    
 	return iterator;
 }
-
+   
 iterator_t SLLInsertBefore(iterator_t iterator, void *data)
 {	
 	iterator_t new_node = NULL;
