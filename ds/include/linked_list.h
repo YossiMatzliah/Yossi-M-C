@@ -127,7 +127,7 @@ iterator_t SLLInsertBefore(iterator_t iterator, void *data);
 *
 * @Returns:
 *	returns an iterator to the next node in the linked list.
-*       if "iterator" is invalid then - the behavior of the function is undefined.
+*       if "iterator" is invalid, then - the behavior of the function is undefined.
 *       Iterator invalidation can occur if the same iterator is used after the function has returned.
 *
 * @Complexity
@@ -238,7 +238,7 @@ int SLLIsEmpty(const sll_t *sll);
 * @Complexity
 *	Time: O(1)
 */
-sll_t *SLLCreate();
+sll_t *SLLCreate(void);
 
 /*
 * Destroy Description:
@@ -255,6 +255,22 @@ sll_t *SLLCreate();
 *	Time: O(n)
 */
 void SLLDestroy(sll_t *sll);
+
+/*
+* Append Description:
+*	Append src to the end of dest.
+*
+* @Params:
+*	dest - pointer to the linked list to append src to.
+*	src	-  pointer to the linked list to append to end of dest.
+*
+* @Returns:
+*	pointer to dest after the append.
+*
+* @Complexity
+*	Time: O(1)
+*/
+sll_t *SLLAppend(sll_t *dest ,sll_t *src);
 
 #endif
 

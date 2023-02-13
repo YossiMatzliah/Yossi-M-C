@@ -48,7 +48,7 @@ int main()
 	iter_tail = SLLEndIter(sll_test);
 	TestSLLIsEmpty(sll_test);
 	printf("before");
-	TestSLLInsertBefore(iter_head, &val1);
+	TestSLLInsertBefore(iter_tail, &val1);
 	printf("after");
 	iter_tail = SLLEndIter(sll_test);
 	
@@ -138,10 +138,16 @@ static void TestSLLBeginIter(sll_t *sll, int *value)
 static void TestSLLEndIter(sll_t *sll)
 {
 	iterator_t result_iter = SLLEndIter(sll);
+	iterator_t iter = SLLBeginIter(sll);
 	
 	printf(U_LINE"Test SLL End Iter:\n"RESET);
 	
-	if(sll == SLLGetData(result_iter))
+	while (NULL != SLLNextIter(iter))
+    {
+        iter = SLLNextIter(iter);
+    }
+    
+	if(iter == result_iter)
 	{
 		printf(GRN"SUCCESS!"RESET"\n\n");
 	}
@@ -284,18 +290,9 @@ static void PrintSLL(sll_t *sll)
 
 int AddParamToData(void *data, void *parameter)
 {
-	int result = *(int *)data;
-	*(int *)data += *(int *)parameter;
-	
-	if (*(int *)data == (result + *(int *)parameter))
-	{
-		return 0;
-	}
-	
-	else
-	{
-		return 1;
-	}
+	 *(int *)data += *(int *)parameter;
+	 
+	 return 0;
 }
 
 int IsMatch(void *data, const void *parameter)

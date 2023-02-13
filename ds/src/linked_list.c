@@ -4,8 +4,8 @@
 *	Reviewer  :	Lilach				  *
 **************************************/
 
-#include <assert.h> /*assert*/
-#include <stdlib.h> /*malloc*/
+#include <assert.h> /* assert */
+#include <stdlib.h> /* malloc */
 #include <stdio.h> /* perror */
 
 #include "../../ds/include/linked_list.h"
@@ -24,11 +24,11 @@ struct SingleLinkedList
 
 /**********************************************************/
 
-sll_t *SLLCreate()
+sll_t *SLLCreate(void)
 {
 	node_t *dummy = NULL;
 	
-	sll_t *new_list = (sll_t *) malloc(sizeof(sll_t));
+	sll_t *new_list = (sll_t *)malloc(sizeof(sll_t));
 	if (NULL == new_list)
 	{
 		perror("Allocation Failed\n");
@@ -57,6 +57,7 @@ sll_t *SLLCreate()
 void SLLDestroy(sll_t *sll)
 {
 	assert(NULL != sll);
+	
 	while (!SLLIsEmpty(sll))
 	{
 		sll->head = SLLRemove(sll->head);
@@ -91,16 +92,16 @@ iterator_t SLLRemove(iterator_t iterator)
 	iterator_t remove_node = NULL;
 	
 	assert(NULL != iterator);
-		
+	/* assert(NULL != iterator->next); ???*/	
 	remove_node = iterator->next;
 	
-	if (NULL != iterator->next) 
-    {
+	if (NULL != iterator->next)
+	{
 		iterator->data = SLLNextIter(iterator)->data;
 		iterator->next = SLLNextIter(iterator)->next;
 		free(remove_node);
 	}
-    
+	
 	return iterator;
 }
    
@@ -141,6 +142,7 @@ iterator_t SLLInsertBefore(iterator_t iterator, void *data)
 void *SLLGetData(iterator_t iterator)
 {
 	assert(NULL != iterator);
+	assert(NULL != iterator->next); 
 	
 	return iterator->data;
 }
@@ -149,6 +151,7 @@ void SLLSetData(const iterator_t iterator, void *data)
 {
 	assert(NULL != iterator);
 	assert(NULL != data);
+	assert(NULL != iterator->next); 
 	
 	iterator->data = data;
 }
@@ -168,19 +171,24 @@ int SLLIsEmpty(const sll_t *sll)
 	return (NULL == sll->head->next);
 }
 
+static int CountFunc(void *data, void *counter)
+{
+	assert(NULL != data);
+	
+	++(*(size_t *)counter);
+	
+	return 0;
+}
+
 size_t SLLCount(const sll_t *sll)
 {
 	size_t counter = 0;
-	iterator_t iter = NULL;
-	
+
 	assert(NULL != sll);
 	
-	iter = sll->head;
-	
-	while (NULL != SLLNextIter(iter))
+	if (SLLForEach(SLLBeginIter(sll), SLLEndIter(sll), CountFunc, (void *)&counter))
 	{
-		++counter;
-		iter = SLLNextIter(iter);
+		counter = 0;
 	}
 	
 	return counter;
@@ -196,14 +204,9 @@ int SLLForEach(iterator_t from, const iterator_t to, action_func user_func, void
 	assert(NULL != user_func);
 	assert(NULL != param);
 	
-	while (to != iter)
+	while (to != iter && 0 == return_val)
 	{
 		return_val = user_func(iter->data, param);
-		if (0 != return_val)
-		{
-			break;
-		}
-		
 		iter = SLLNextIter(iter);
 	}
 	
@@ -212,16 +215,12 @@ int SLLForEach(iterator_t from, const iterator_t to, action_func user_func, void
 
 iterator_t SLLFind(iterator_t from, iterator_t to, is_match user_func, void *param)
 {
-	assert (NULL != from);
+	assert (NULL != from);							
 	assert (NULL != to);
 	assert (NULL != user_func);
 	
-	while (!SLLIsSameIter(from, to))
+	while (!SLLIsSameIter(from, to) && (0 == user_func(from->data, param)))
 	{		
-		if(1 == user_func(from->data, param))
-		{
-			break;
-		}		
 		from = SLLNextIter(from);
 	}
 	
