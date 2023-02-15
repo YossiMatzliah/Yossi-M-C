@@ -30,6 +30,7 @@ queue_t *QueueCreate(void)
 	}
 	
 	new_queue->list = SLLCreate(); 
+	/* add if NULL == new_queue->list free it and put NULL */
 	
 	return new_queue;
 }
@@ -39,7 +40,7 @@ void QueueDestroy(queue_t *queue)
 	assert(NULL != queue);
 	
 	SLLDestroy(queue->list);
-	free(queue);
+	free(queue); 
 }
 
 void QueueDequeue(queue_t *queue)
@@ -54,11 +55,11 @@ int QueueEnqueue(queue_t *queue, void *data)
 	iterator_t iter = NULL;
 	
 	assert(NULL != queue);
-	assert(NULL != data); 
+	assert(NULL != data); /* remove */
 
 	iter = SLLInsertBefore(SLLEndIter(queue->list), data);
 	
-	return ((iter != SLLEndIter(queue->list))? 0 : 1 );
+	return ((iter != SLLEndIter(queue->list))? 0 : 1 ); /* should use func IsSameIter */
 }
 
 void *QueuePeek(const queue_t *queue)

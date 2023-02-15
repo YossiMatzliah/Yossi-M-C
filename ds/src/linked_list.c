@@ -9,14 +9,14 @@
 #include <stdio.h> /* perror */
 
 #include "../../ds/include/linked_list.h"
-
-struct Node
+/* typedef need to be here */
+struct Node /* node */
 {
     void *data;
     node_t *next;
 };
 
-struct SingleLinkedList
+struct SingleLinkedList /* single_linked_list */
 {
 	node_t *head;
 	node_t *tail;
@@ -27,7 +27,6 @@ struct SingleLinkedList
 sll_t *SLLCreate(void)
 {
 	node_t *dummy = NULL;
-	
 	sll_t *new_list = (sll_t *)malloc(sizeof(sll_t));
 	if (NULL == new_list)
 	{
@@ -45,7 +44,7 @@ sll_t *SLLCreate(void)
 		return NULL;
 	}
 	
-	dummy->data = (void *)new_list; 
+	dummy->data = (void *)new_list; /* in a func InitNode */
 	dummy->next = NULL;
 	
 	new_list->head = dummy;
@@ -76,7 +75,7 @@ iterator_t SLLBeginIter(const sll_t *sll)
 iterator_t SLLNextIter(const iterator_t iterator)
 {
 	assert(NULL != iterator);
-	
+	/* assert(NULL != iterator->next);  */	
 	return iterator->next;
 }
 
@@ -92,16 +91,16 @@ iterator_t SLLRemove(iterator_t iterator)
 	iterator_t remove_node = NULL;
 	
 	assert(NULL != iterator);
-	/* assert(NULL != iterator->next); ???*/	
+	/* assert(NULL != iterator->next); because we said he should not touch dummy*/	
 	remove_node = iterator->next;
 	
-	if (NULL != iterator->next)
+	if (NULL != iterator->next) /**/
 	{
-		iterator->data = SLLNextIter(iterator)->data;
+		iterator->data = SLLNextIter(iterator)->data; /* should use SetData or InitNode */
 		iterator->next = SLLNextIter(iterator)->next;
 		free(remove_node);
 	}
-	
+	/* should add the if with the iterator->next like did with InsertBefore */
 	return iterator;
 }
    
@@ -117,17 +116,17 @@ iterator_t SLLInsertBefore(iterator_t iterator, void *data)
 	{
 		perror("Allocation Failed\n");
 		
-		while (NULL != iterator->next)
+		while (NULL != iterator->next)  /* could be in func */
 		{
-			iterator = iterator->next;
+			iterator = iterator->next; /* if using iter use func IterNext */
 		}
 		
 		return iterator;
 	}
 	
-	new_node->next = iterator->next;
+	new_node->next = iterator->next; /* as said func IntiNode */
 	new_node->data = iterator->data;
-	
+							/* Gidi said not need free space here, cause doing the same */
 	iterator->next = new_node;
 	iterator->data = data;
 	
@@ -150,7 +149,7 @@ void *SLLGetData(iterator_t iterator)
 void SLLSetData(const iterator_t iterator, void *data)
 {
 	assert(NULL != iterator);
-	assert(NULL != data);
+	assert(NULL != data); /* remove, he can send NULL if want to, we don't do dereferance to it */ 
 	assert(NULL != iterator->next); 
 	
 	iterator->data = data;
@@ -202,7 +201,7 @@ int SLLForEach(iterator_t from, const iterator_t to, action_func user_func, void
 	assert(NULL != from);
 	assert(NULL != to);
 	assert(NULL != user_func);
-	assert(NULL != param);
+	assert(NULL != param); /* remove, could send NULL in param */
 	
 	while (to != iter && 0 == return_val)
 	{
@@ -232,7 +231,7 @@ sll_t *SLLAppend(sll_t *dest ,sll_t *src)
 	assert(NULL != dest);
 	assert(NULL != src);
 
-	dest->tail->data = src->head->data;
+	dest->tail->data = src->head->data; /* in functions Init or SetNode  */
 	dest->tail->next = src->head->next;
 	
 	src->tail->data = (void *)dest;

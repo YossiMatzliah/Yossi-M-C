@@ -67,7 +67,7 @@ int main()
 	TestSLLInsertBefore(iter_tail, &val4);
 	iter_tail = SLLEndIter(sll_test);
 	
-	TestIsSameIter(SLLNextIter(iter_head), SLLNextIter(iter_head));
+	TestIsSameIter(SLLNextIter(iter_head), SLLNextIter(iter_head));/* iter_tail */
 	
 	TestSLLInsertBefore(iter_tail, &val5);
 	iter_tail = SLLEndIter(sll_test);
