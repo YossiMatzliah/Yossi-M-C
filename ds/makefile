@@ -3,8 +3,8 @@ INCLUDE_PATH=-I /home/yossi/git/ds/include/
 SRC_PATH=/home/yossi/git/ds/src/
 TEST_PATH=/home/yossi/git/ds/test/
 
-WSNAME=c_buffer
-#MORESRC=$(SRC_PATH)linked_list
+WSNAME=dll
+#MORESRC=$(SRC_PATH)dll
 OBJS=$(TEST_PATH)$(WSNAME)_test.o $(SRC_PATH)$(WSNAME).o #$(MORESRC).o
 SRCS=$(TEST_PATH)$(WSNAME)_test.c $(SRC_PATH)$(WSNAME).c #$(MORESRC).c
 
@@ -13,12 +13,12 @@ obj_src = $(WSNAME).o
 TARGET = $(WSNAME)
 
 $(TARGET): $(OBJS)  
-	$(CC) $(SRCS) -o $(TARGET) $(INCLUDE_PATH) 
-debug: $(OBJS) 
-	$(CC) -g -DNDEBUG -O3 $(SRCS) -o $(TARGET) $(INCLUDE_PATH)		
-release: $(OBJS) 
-	$(CC) -g $(SRCS) -o $(TARGET) $(INCLUDE_PATH)  	
+	$(CC) $(SRCS) -g -o $(TARGET) $(INCLUDE_PATH) 
 	rm $(OBJS) 
+debug: $(OBJS) 
+	$(CC) -g -O3 $(SRCS) -o $(TARGET) $(INCLUDE_PATH)		
+obj: $(OBJS) 
+	$(CC) -g $(SRCS) -o $(TARGET) $(INCLUDE_PATH)  	 
 .PHONY: run
 run:
 	./$(TARGET) 

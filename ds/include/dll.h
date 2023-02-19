@@ -1,39 +1,54 @@
-typedef struct node node_t;
-typedef node_t *iterator_t;
+/**************************************
+*	Developer :	Yossi Matzliah        *
+*	Reviewer  :	Oran Freidin		  *
+*	Date      : 18/02/2023			  *
+**************************************/
+
+#ifndef __ILRD_OL139_40_DLL_H__
+#define __ILRD_OL139_40_DLL_H__
+
+#include <stddef.h> /* size_t */
+
+typedef struct node *iterator_t;
 typedef struct doubly_linked_list dll_t;
 
-struct node
-{
-    node_t *prev;
-    void *data;
-    node_t *next;
-};
+typedef int (*action_func_t)(void *, void *); 
+typedef int (*is_match_t)(void *, const void *);
 
-struct doubly_linked_list
-{
-	node_t *front;
-	node_t *back;
-};
-    
+/*******************************************************/
 
 /*
-* Count Description:
-*	Counts the number of nodes in the linked list.
+* DLLCreate description:
+* 	Creates a doubly linked list
 *
-* @Params:
-*	dll - pointer to the linkedlist.
+* @param:
+* 	none
+* 
+* @return:
+* 	Returns a pointer to the created doubly likned list.
 *
-* @Returns:
-*	Returns the number of nodes in the linked list.
-*	if "dll" is invalid then  - the behavior of the function is undefined.
-*
-* @Complexity
-*	Time: O(N)
+* complexity
+* 	Time: O(1)
 */
-size_t DLLCount(const dll_t *dll);
+dll_t *DLLCreate();
 
 /*
-* IsEmpty Description:
+* DLLDestroy description:
+* 	Destroys doubly linked list
+*
+* @param:
+* 	dll - Pointer to doubly linked list
+* 
+* @return:
+* 	void
+*
+* complexity
+* 	Time: O(1)
+*/
+void DLLDestroy(dll_t *dll);
+
+/*
+* DLLIsEmpty Description:
 *	Checks if the linked list is empty.
 *
 * @Params:
@@ -48,28 +63,33 @@ size_t DLLCount(const dll_t *dll);
 int DLLIsEmpty(const dll_t *dll);
 
 /*
-* Count Description:
+* DLLCount Description:
 *	Counts the number of nodes in the linked list.
 *
 * @Params:
 *	dll - pointer to the linkedlist.
-*
+*		NOTE: if "dll" is invalid then - the behavior of the function is undefined.
+*	
 * @Returns:
-*	Returns the number of nodes in the linked list.
-*	if "dll" is invalid then  - the behavior of the function is undefined.
+*	Returns the number of nodes in the linked list.	
 *
 * @Complexity
-*	Time: O(N)
+*	Time: O(n)
 */
 size_t DLLCount(const dll_t *dll);
 
 /*
-* Insert Description:
+* DLLInsert Description:
 *	Inserts a new node with a given data value at a specified position in the DLL.
 *
 * @Params:
+*	iterator - pointer to the linked list.
+*	data - pointer to the value for the inserted node.
 *
 * @Returns:
+*	returns the iterator variable to the inserted node.
+*	In case of fail returns iterator to the tail node.
+*	if "iterator" is invalid, the behavior of the function is undefined.
 *
 * @Complexity
 *	Time: O(1)
@@ -77,25 +97,33 @@ size_t DLLCount(const dll_t *dll);
 iterator_t DLLInsert(iterator_t iterator, void *data);
 
 /*
-* Remove Description:
-*	Removes a node from the DLL at a specified position.
+*  DLLRemove Description:
+*	Removes a node pointed by the given iterator.
 *
 * @Params:
+*	iterator - iterator to the node to be removed.
 *
 * @Returns:
-*
+*	returns an iterator to the next node in the linked list.
+*   if "iterator" is invalid, the behavior of the function is undefined
+*   Iterator invalidation can occur if the same iterator is used after the function has returned
+* 	if the list is empty the behavior is undefined.
+*	
 * @Complexity
 *	Time: O(1)
 */
 iterator_t DLLRemove(iterator_t iterator);
 
 /*
-* PushBack Description:
-*	Adds a new node with a given data value to the end of the DLL.
+*  DLLPushBack Description:
+*  	Inserts a node at the end of list.  
 *
 * @Params:
+*	dll - Pointer to doubly linked list
+*	data - Pointer to data to be inserted
 *
 * @Returns:
+*	returns an iterator to the node that was inserted.
 *
 * @Complexity
 *	Time: O(1)
@@ -103,46 +131,55 @@ iterator_t DLLRemove(iterator_t iterator);
 iterator_t DLLPushBack(dll_t *dll, void *data); /* Add to the end of the list */
 
 /*
-* PushFront Description:
-*	Adds a new node with a given data value to the beginning of the DLL.
+*  DLLPushFront Description:
+*  	Inserts a node at beginning of list
 *
 * @Params:
+*	dll - Pointer to doubly linked list
+*	data - pointer to data to be inserted
 *
 * @Returns:
-*
+*	returns an iterator to the node that was inserted
+*	
 * @Complexity
 *	Time: O(1)
 */
 iterator_t DLLPushFront(dll_t *dll, void *data);  
 
 /*
-* PopBack Description:
-*	Removes the last node in the DLL.
+*  DLLPopBack Description:
+*  	Removes the last node in the list and returns a pointer to the data saved in removed node
 *
 * @Params:
+*	dll - Pointer to doubly linked list
 *
 * @Returns:
-*
+*	returns pointer to data in removed node
+*	if the list is empty the behavior is undefined.
+*	
 * @Complexity
 *	Time: O(1)
 */
-void PopBack(dll_t *dll);
+void *DLLPopBack(dll_t *dll);
 
 /*
-* PopFront Description:
-*	Removes the first node in the DLL.
+*  DLLPopFront Description:
+* 	 Removes the last node in the list and returns a pointer to the data saved in removed node
 *
 * @Params:
+*	dll - Pointer to doubly linked list
 *
 * @Returns:
-*
+*	returns pointer to data in removed node
+*	if the list is empty the behavior is undefined.
+*	
 * @Complexity
 *	Time: O(1)
 */
-void PopFront(dll_t *dll);
+void *DLLPopFront(dll_t *dll);
 
 /*
-* Find Description:
+* DLLFind Description:
 *	Execute the given function on a given part of the linked list (inclusive 'from' to exclusive 'to')
 *   with a given parameter.
 *
@@ -160,31 +197,33 @@ void PopFront(dll_t *dll);
 * @Complexity
 *	Time: O(n)
 */
-iterator_t DLLFind(iterator_t from, iterator_t to, is_match user_func, void *param);
+iterator_t DLLFind(iterator_t from, iterator_t to, is_match_t user_func, void *param);
 
 /*
-* MultiFind Description:
-*	Execute the given function on a given part of the linked list (inclusive 'from' to exclusive 'to')
-*   with a given parameter.
-*	//Finds all nodes in the DLL containing a given data value and returns them as a list.
+* DLLMultiFind Description:
+* 	Finds all nodes (inclusive 'from' to exclusive 'to') in the DLL containing a given data value and
+*	returns them as a list to the user's given dll. 
+*
 * @Params:
+*	dll_dest - pointer to an empty list given by the user
 *	from - pointer to the start of the range in the linked list.
 *	to - pointer to the end of the range in the linked list.
 *	match_func - pointer to a given compare function.
 *	param - paramter to compare to.
 *
 * @Returns:
-*	returns a list of the matching nodes.
-*       // In case of fail returns iterator to "to".
-*       if "iterator" is invalid then - the behavior of the function is undefined
+*	returns a linked list of all iterators that were found by function
+*   In case of were no matches were found- returns dest as it been recieved.
+*	In case of failure returns NULL.
+*   if "iterator" is invalid then - the behavior of the function is undefined
 *
 * @Complexity
 *	Time: O(n)
 */
-dll_t *MultiFind(dll_t *dll_dest, iterator_t from, iterator_t to, is_match user_func, void *param); 
+dll_t *DLLMultiFind(dll_t *dll_dest, iterator_t from, iterator_t to, is_match_t user_func, void *param); 
 
 /*
-* ForEach Description:
+* DLLForEach Description:
 *	Execute the given function on a given part of the linked list (inclusive 'from' to exclusive 'to') 
 	with a given parameter.
 *
@@ -196,17 +235,17 @@ dll_t *MultiFind(dll_t *dll_dest, iterator_t from, iterator_t to, is_match user_
 *
 * @Returns:
 *	returns action_function status. 
-*       0 if succeeded. 
-*       if one of the operations of the action func fails returns value different from 0.
-*       if "iterator" is invalid then - the behavior of the function is undefined.
+*	0 if succeeded. 
+*	if one of the operations of the action func fails returns value different from 0.
+*	if "iterator" is invalid then - the behavior of the function is undefined.
 *
 * @Complexity
 *	Time: O(n)
 */
-int DLLForEach(iterator_t from, const iterator_t to, action_func user_func, void *param);
+int DLLForEach(iterator_t from, const iterator_t to, action_func_t user_func, void *param);
 
 /*
-* SetData Description:
+* DLLSetData Description:
 *	sets the value of a node pointed by the given iterator.
 *
 * @Params:
@@ -214,7 +253,7 @@ int DLLForEach(iterator_t from, const iterator_t to, action_func user_func, void
 *	data 	 - the data to set to the node.
 *
 * @Returns:
-*	void
+*	none
 *
 * @Complexity
 *	Time: O(1)
@@ -222,7 +261,7 @@ int DLLForEach(iterator_t from, const iterator_t to, action_func user_func, void
 void DLLSetData(const iterator_t iterator, void *data);
 
 /*
-* GetData Description:
+* DLLGetData Description:
 *	gets the value of a node pointed by the given iterator.
 *
 * @Params:
@@ -238,24 +277,21 @@ void DLLSetData(const iterator_t iterator, void *data);
 void *DLLGetData(iterator_t iterator);
 
 /*
-* Splice Description:
-*	Takes a range of nodes from another DLL and inserts them into
-*	a specified position in the current DLL.
-
-*Transfer all the elements of list x into another list at some position.
-    Transfer only the element pointed by i from list x into the list at some position.
-    Transfers the range [first, last) from list x into another list at some position.
+* DLLSplice Description:
+*	Takes a range of nodes from another DLL and inserts them before a specified position in the current DLL(before dest)
+*
 * @Params:
-*	
+*	dest - iterator points to a node in destination linked list.
+*	src_from - iterator points to first node in required range of source linked list. (included)
+*	src_to - iterator points to last node in required range of source linked list. (excluded)
 *
 * @Returns:
-*	
-*       
+*	returns iterator to beginning of destination linked lists
 *
 * @Complexity
 *	Time: O(1)
 */
-iterator_t DLLSplice(iterator_t iter_dest, iterator_t src_from, iterator src_to);  
+iterator_t DLLSplice(iterator_t iter_dest, iterator_t src_from, iterator_t src_to);  
 
 /*
 * BeginIter Description:
@@ -338,16 +374,5 @@ iterator_t DLLEndIter(const dll_t *dll);
 */
 int DLLIsSameIter(const iterator_t iter1, const iterator_t iter2);
 
-
-    MultiFind: 
-    ForEach: Performs a given function on each node in the DLL.
-    SetData: Sets the data value of a given node in the DLL.
-    GetData: Gets the data value of a given node in the DLL.
-    BeginIter: Returns an iterator pointing to the first node in the DLL.
-    EndIter: Returns an iterator pointing to the last node in the DLL.
-    NextIter: Moves an iterator to the next node in the DLL.
-    PrevIter: Moves an iterator to the previous node in the DLL.
-    IsSameIter: Checks if two iterators are pointing to the same node.
-    Splice: Takes a range of nodes from another DLL and inserts them into a specified position in the current DLL.
-
+#endif
 
