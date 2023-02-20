@@ -9,7 +9,7 @@
 #include <stdlib.h>	/*malloc, free */
 #include <assert.h>	/*assert */
 
-#include "../../ds/include/dll.h"
+#include "../include/dll.h"
 
 #define TRUE (1)
 #define FALSE (0)

@@ -24,7 +24,7 @@ struct c_buffer
 
 c_buffer_t *CBufferCreate(size_t capacity)
 {
-	c_buffer_t *buffer = (c_buffer_t *)malloc(capacity + sizeof(c_buffer_t));
+	c_buffer_t *buffer = (c_buffer_t *)malloc(capacity + sizeof(c_buffer_t)); /*offsetof(c_buffer_t, data) and + 1 for the 'dummy'*/
 	
 	if (NULL == buffer)
 	{
@@ -59,7 +59,7 @@ size_t CBufferFreeSpace(const c_buffer_t *buffer)
 	
 	if (CBufferIsEmpty(buffer))
 	{
-		size = buffer->capacity - 1;
+		size = buffer->capacity - 1;	/* stole one for kind of dummy, should change */
 	}
 	
 	else if (buffer->read > buffer->write)
@@ -109,7 +109,7 @@ ssize_t CBufferWrite(c_buffer_t *buffer,const void *src, size_t data_size)
 	if (0 == buffer->read)
 	{
 		++(buffer->write);
-		memcpy((void *)(buffer->data + buffer->write), src_runner, 1);
+		memcpy((void *)(buffer->data + buffer->write), src_runner, 1);	
 		++(buffer->read);
 		++(buffer->write);
 		++src_runner;
@@ -118,14 +118,14 @@ ssize_t CBufferWrite(c_buffer_t *buffer,const void *src, size_t data_size)
 		
 	while (bytes_wrote != data_size && (buffer->read != buffer->write))
 	{
-		memcpy((void *)(buffer->data + buffer->write), src_runner, 1);
+		memcpy((void *)(buffer->data + buffer->write), src_runner, 1);	/* should change assigment or if we have enough space do it in one time if not do as   */
 		++(buffer->write);
 		++src_runner;
 		++bytes_wrote;
 		
 		if (buffer->write == buffer->capacity)
 		{
-			buffer->write = 1;
+			buffer->write = 1;	/*could use %, */
 		}
 		
 		if (buffer->write == buffer->read)

@@ -1,19 +1,27 @@
-/**************************************
-*	Developer :	Yossi Matzliah        *
-*	Reviewer  :			  *
-*	Date      : 19/02/2023			  *
-**************************************/
+/************************************
+*	Developer :	Yossi Matzliah      *
+*	Reviewer  :	Omri	  			*
+*	Date      : 20/02/2023			*
+************************************/
 
 #ifndef __ILRD_OL139_40_SORTED_H__
 #define __ILRD_OL139_40_SORTED_H__
 
 #include <stddef.h>
 
-typedef struct sol_iterator iterator_st;
+#include "dll.h"
+
 typedef struct sorted_linked_list sol_t;
 
-typedef int (*action_func_st)(void *data, void *param); 
-typedef int (*is_match_st)(const void *data, void *param);
+typedef struct sol_iterator
+{
+	iterator_t dll_iterator;
+
+	#ifndef NDEBUG
+	dll_t *dll;
+	#endif
+} iterator_st;
+
 typedef int (*cmp_func_st)(const void *data1, const void *data2);
 
 /**************************************************************************/
@@ -150,12 +158,12 @@ void *SortedListPopFront(sol_t *sol);
 
 /*
 * SortedListFindIf Description:
-*	searches the sorted list according to is_match_st function in the selected range (inclusive 'from' to exclusive 'to') with a given parameter.
+*	searches the sorted list according to is_match_t function in the selected range (inclusive 'from' to exclusive 'to') with a given parameter.
 *
 * @Params:
 *	from - pointer to the start of the range in the sorted linked list.
 *	to - pointer to the end of the range in the sorted linked list.
-*	match_func - pointer to a given is_match_st function.
+*	match_func - pointer to a given is_match_t function.
 *	param - paramter to find.
 *
 * @Returns:
@@ -166,7 +174,7 @@ void *SortedListPopFront(sol_t *sol);
 * @Complexity
 *	Time: O(n)
 */
-iterator_st SortedListFindIf(iterator_st from, iterator_st to, is_match_st user_func, void *param); 
+iterator_st SortedListFindIf(iterator_st from, iterator_st to, is_match_t user_func, void *param); 
 
 /*
 * SortedListFind Description:
@@ -190,7 +198,7 @@ iterator_st SortedListFind(sol_t *sol, iterator_st from, iterator_st to, const v
 
 /*
 * SortedListForEach Description:
-*	Execute the given action_func_st on a given range of the sorted list (inclusive 'from' to exclusive 'to') with a given parameter.
+*	Execute the given action_func_t on a given range of the sorted list (inclusive 'from' to exclusive 'to') with a given parameter.
 *
 * @Params:
 *	from - pointer to the start of the range in the linked list.
@@ -207,7 +215,7 @@ iterator_st SortedListFind(sol_t *sol, iterator_st from, iterator_st to, const v
 * @Complexity
 *	Time: O(n)
 */
-int SortedListForEach(iterator_st from, iterator_st to, action_func_st user_func, void *param); /*assert from to*/
+int SortedListForEach(iterator_st from, iterator_st to, action_func_t user_func, void *param); /*assert from to*/
 	
 /*
 * SortedListGetData Description:
