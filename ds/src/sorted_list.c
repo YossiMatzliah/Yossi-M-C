@@ -29,7 +29,7 @@ static int IsBefore(sol_t *sol, const void *num_in_list, const void *num_to_chec
 sol_t *SortedListCreate(cmp_func_st user_func)
 {
 	sol_t *sorted_list = NULL;
-	
+	/* assert user_func */
 	sorted_list = (sol_t *)malloc(sizeof(sol_t));
 	if (NULL == sorted_list)
 	{
@@ -76,7 +76,7 @@ iterator_st SortedListInsert(sol_t *sol, void *data)
 	assert(NULL != sol);
 	assert(NULL != data);
 	
-	iter_position = SortedListFind(sol, SortedListBeginIter(sol), SortedListEndIter(sol), data);
+	iter_position = SortedListFind(sol, SortedListBeginIter(sol), SortedListEndIter(sol), data); /* find need to find the exact data, and return iter to the node, if not return end. need to use findif for insert or dllfind */
 	
 	inserted_node.dll_iterator = DLLInsert(iter_position.dll_iterator, data);
 	
@@ -144,9 +144,10 @@ iterator_st SortedListFind(sol_t *sol, iterator_st from, iterator_st to, const v
 	assert(NULL != sol);
 	assert(NULL != from.dll_iterator);
 	assert(NULL != to.dll_iterator);
+	/*assert (from.dll != to.dll) */
 	
 	#ifndef NDEBUG
-	if (from.dll != to.dll)
+	if (from.dll != to.dll) /*  */
 	{
 		return to;
 	}
@@ -276,8 +277,9 @@ sol_t *SortedListMerge(sol_t *dest_sol, sol_t *src_sol)
 	
 	while (TRUE != SortedListIsEmpty(src_sol))
 	{
-		dest_splice_iter = SortedListFind(dest_sol, from_iter, to_iter, SortedListGetData(src_merge_iter));
+		dest_splice_iter = SortedListFind(dest_sol, from_iter, to_iter, SortedListGetData(src_merge_iter));	/* findif with IsBigger */
 		
+		/* should use another while to advance 'to' till not bigger and than do splice */
 		DLLSplice(dest_splice_iter.dll_iterator, src_merge_iter.dll_iterator, DLLNextIter(src_merge_iter.dll_iterator));
 		src_merge_iter = SortedListBeginIter(src_sol);
 		from_iter = dest_splice_iter;
@@ -288,12 +290,5 @@ sol_t *SortedListMerge(sol_t *dest_sol, sol_t *src_sol)
 
 static int IsBefore(sol_t *sol, const void *num_in_list, const void *num_to_check)
 {
-	if (0 < sol->user_func(num_in_list, num_to_check))
-	{
-		return TRUE;
-	}
-	else
-	{
-		return FALSE;
-	}
+	return (0 < sol->user_func(num_in_list, num_to_check));
 }

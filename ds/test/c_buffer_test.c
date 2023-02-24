@@ -6,7 +6,7 @@
 
 #include <stdio.h>	/* printf */
 
-#include "../../ds/include/c_buffer.h"
+#include "../include/c_buffer.h"
 
 #define U_LINE 	"\033[1m\033[4m"
 #define RED   	"\033[1m\033[41m\x1B[30m"
@@ -33,7 +33,7 @@ static void TestCBuffer()
 {
 	size_t capacity = 8;
 	char buff1[] = {1, 2, 3, 4, 5};
-	char buff2[] = {6, 7};
+	char buff2[] = {6, 7, 8};
 	size_t size = 0;
 	ssize_t writed_size = 0; 
 	c_buffer_t *test_buffer = NULL;
@@ -44,7 +44,7 @@ static void TestCBuffer()
 	
 	TestCBufferIsEmpty(test_buffer);
 	
-	printf("The capacity of the buffer is %ld\n",capacity - 1);
+	printf("The capacity of the buffer is %ld\n",capacity);
 	
 	size = sizeof(buff1);
 	printf("writing %ld bytes:\n", size);
@@ -86,7 +86,7 @@ static void TestCBuffer()
 	printf("Trying to read %ld bytes.\n", bytes_to_read);
 	bytes_to_read = CBufferRead(test_buffer, dest, bytes_to_read);
 	
-	if (3 == bytes_to_read)
+	if (4 == bytes_to_read)
 	{
 		printf("succeeded to read %ld bytes. Buffer is now empty, can't read more.\n", bytes_to_read);
 		PRINTSUCCESS;
@@ -126,7 +126,7 @@ static void TestCBuffer()
 	PRINTSUCCESS;
 	
 	printf("Trying to write %ld bytes:\n", size);
-	writed_size = CBufferWrite(test_buffer, buff2, size);
+	writed_size = CBufferWrite(test_buffer, buff1, size);
 	
 	printf("You wrote %ld bytes to the string.\n", writed_size);
 	PrintCB(test_buffer);
