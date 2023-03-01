@@ -20,7 +20,7 @@ typedef struct sol_iterator
 	#ifndef NDEBUG
 	dll_t *dll;
 	#endif
-} iterator_st;
+} sol_iterator_t;
 
 typedef int (*cmp_func_st)(const void *data1, const void *data2);
 
@@ -107,7 +107,7 @@ size_t SortedListSize(const sol_t *sol);
 * @Complexity
 *	Time: O(n)
 */
-iterator_st SortedListInsert(sol_t *sol, void *data); /*reuse Find*/
+sol_iterator_t SortedListInsert(sol_t *sol, void *data); /*reuse Find*/
 
 /*
 *  SortedListRemove Description:
@@ -124,7 +124,7 @@ iterator_st SortedListInsert(sol_t *sol, void *data); /*reuse Find*/
 * @Complexity
 *	Time: O(1)
 */
-iterator_st SortedListRemove(iterator_st iterator);
+sol_iterator_t SortedListRemove(sol_iterator_t iterator);
 
 /*
 *  SortedListPopBack Description:
@@ -174,7 +174,7 @@ void *SortedListPopFront(sol_t *sol);
 * @Complexity
 *	Time: O(n)
 */
-iterator_st SortedListFindIf(iterator_st from, iterator_st to, is_match_t user_func, void *param); 
+sol_iterator_t SortedListFindIf(sol_iterator_t from, sol_iterator_t to, is_match_t user_func, void *param); 
 
 /*
 * SortedListFind Description:
@@ -194,7 +194,7 @@ iterator_st SortedListFindIf(iterator_st from, iterator_st to, is_match_t user_f
 * @Complexity
 *	Time: O(n)
 */
-iterator_st SortedListFind(sol_t *sol, iterator_st from, iterator_st to, const void *to_find);
+sol_iterator_t SortedListFind(sol_t *sol, sol_iterator_t from, sol_iterator_t to, const void *to_find);
 
 /*
 * SortedListForEach Description:
@@ -215,7 +215,7 @@ iterator_st SortedListFind(sol_t *sol, iterator_st from, iterator_st to, const v
 * @Complexity
 *	Time: O(n)
 */
-int SortedListForEach(iterator_st from, iterator_st to, action_func_t user_func, void *param); /*assert from to*/
+int SortedListForEach(sol_iterator_t from, sol_iterator_t to, action_func_t user_func, void *param); /*assert from to*/
 	
 /*
 * SortedListGetData Description:
@@ -231,7 +231,7 @@ int SortedListForEach(iterator_st from, iterator_st to, action_func_t user_func,
 * @Complexity
 *	Time: O(1)
 */																					
-void *SortedListGetData(iterator_st iterator);
+void *SortedListGetData(sol_iterator_t iterator);
 
 /*
 * SortedListBeginIter Description:
@@ -248,7 +248,7 @@ void *SortedListGetData(iterator_st iterator);
 * @Complexity
 *	Time: O(1)
 */																									
-iterator_st SortedListBeginIter(const sol_t *sol);	
+sol_iterator_t SortedListBeginIter(const sol_t *sol);	
 	
 /*
 * SortedListEndIter Description:
@@ -264,7 +264,7 @@ iterator_st SortedListBeginIter(const sol_t *sol);
 * @Complexity
 *	Time: O(1)
 */																								
-iterator_st SortedListEndIter(const sol_t *sol);
+sol_iterator_t SortedListEndIter(const sol_t *sol);
 
 /*
 * SortedListNextIter Description:
@@ -280,7 +280,7 @@ iterator_st SortedListEndIter(const sol_t *sol);
 * @Complexity
 *	Time: O(1)
 */																						
-iterator_st SortedListNextIter(iterator_st iterator);	
+sol_iterator_t SortedListNextIter(sol_iterator_t iterator);	
 												
 /*
 * SortedListPrevIter Description:
@@ -296,7 +296,7 @@ iterator_st SortedListNextIter(iterator_st iterator);
 * @Complexity
 *	Time: O(1)
 */																		
-iterator_st SortedListPrevIter(iterator_st iterator);	
+sol_iterator_t SortedListPrevIter(sol_iterator_t iterator);	
 
 /*
 * SortedListIsSameIter Description:
@@ -313,7 +313,7 @@ iterator_st SortedListPrevIter(iterator_st iterator);
 * @Complexity
 *	Time: O(1)
 */																	
-int SortedListIsSameIter(iterator_st iter1, iterator_st iter2);	
+int SortedListIsSameIter(sol_iterator_t iter1, sol_iterator_t iter2);	
 
 /*
 * SortedListMerge Description:

@@ -13,7 +13,7 @@ typedef struct node *iterator_t;
 typedef struct doubly_linked_list dll_t;
 
 typedef int (*action_func_t)(void *, void *); 
-typedef int (*is_match_t)(void *, const void *);
+typedef int (*is_match_t)(const void *, const void *);
 
 /*******************************************************/
 

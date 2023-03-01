@@ -14,22 +14,33 @@
 #define TRUE (1)
 #define FALSE (0)
 
+typedef struct cmp_wrapper cmp_wrapper_t;
+
 struct sorted_linked_list
 {
 	dll_t *list;
 	cmp_func_st user_func;
 };
 
+struct cmp_wrapper
+{
+	cmp_func_st cmp;
+	void *param;
+};
+
 /**************************************************/
 
-static int IsBefore(sol_t *sol, const void *num_in_list, const void *num_to_check);
+static int IsBiggerCmp(const void *data, const void *wrapper);
+static int CmpToIsMatch(const void *data, const void *wrapper);
 
 /**************************************************/
 
-sol_t *SortedListCreate(cmp_func_st user_func)
+sol_t *SortedListCreate(cmp_func_st compare_func)
 {
 	sol_t *sorted_list = NULL;
-	/* assert user_func */
+	
+	assert(NULL != compare_func);
+ 
 	sorted_list = (sol_t *)malloc(sizeof(sol_t));
 	if (NULL == sorted_list)
 	{
@@ -40,7 +51,7 @@ sol_t *SortedListCreate(cmp_func_st user_func)
 	else
 	{
 		sorted_list->list = DLLCreate();
-		sorted_list->user_func = user_func;
+		sorted_list->user_func = compare_func;
 	}
 	
 	return sorted_list;
@@ -68,28 +79,31 @@ size_t SortedListSize(const sol_t *sol)
 	return DLLCount(sol->list);
 }
 
-iterator_st SortedListInsert(sol_t *sol, void *data)
+sol_iterator_t SortedListInsert(sol_t *sol, void *data)
 {
-	iterator_st iter_position = {NULL};
-	iterator_st inserted_node = {NULL};
+	cmp_wrapper_t wrap = {0};
+	sol_iterator_t insert_position_iter = {0};
 	
 	assert(NULL != sol);
-	assert(NULL != data);
 	
-	iter_position = SortedListFind(sol, SortedListBeginIter(sol), SortedListEndIter(sol), data); /* find need to find the exact data, and return iter to the node, if not return end. need to use findif for insert or dllfind */
+	wrap.cmp = sol->user_func;
+	wrap.param = data;
 	
-	inserted_node.dll_iterator = DLLInsert(iter_position.dll_iterator, data);
+	insert_position_iter = SortedListFindIf(SortedListBeginIter(sol), SortedListEndIter(sol), IsBiggerCmp, &wrap);
+	
+	insert_position_iter.dll_iterator = DLLInsert(insert_position_iter.dll_iterator, data);
 	
 	#ifndef NDEBUG
-	inserted_node.dll = sol->list;
-	#endif
-	
-	return inserted_node;
+	insert_position_iter.dll = sol->list;
+	#endif	
+
+	return insert_position_iter;
+
 }
 
-iterator_st SortedListRemove(iterator_st iterator)
+sol_iterator_t SortedListRemove(sol_iterator_t iterator)
 {
-	iterator_st next_iter = {NULL};
+	sol_iterator_t next_iter = {NULL};
 	
 	assert(NULL != iterator.dll_iterator);
 	
@@ -116,7 +130,7 @@ void *SortedListPopFront(sol_t *sol)
 	return DLLPopFront(sol->list);
 }
 
-iterator_st SortedListFindIf(iterator_st from, iterator_st to, is_match_t user_func, void *param)
+sol_iterator_t SortedListFindIf(sol_iterator_t from, sol_iterator_t to, is_match_t user_func, void *param)
 {
 	assert(NULL != from.dll_iterator);
 	assert(NULL != to.dll_iterator);
@@ -129,44 +143,36 @@ iterator_st SortedListFindIf(iterator_st from, iterator_st to, is_match_t user_f
 	}
 	#endif
 	
-	while (TRUE != SortedListIsSameIter(to, from) && (FALSE == user_func(SortedListGetData(from), param)))
-	{
-		from = SortedListNextIter(from);
-	}
+	from.dll_iterator = DLLFind(from.dll_iterator, to.dll_iterator, user_func, param);
 	
 	return from;
 }
 
-iterator_st SortedListFind(sol_t *sol, iterator_st from, iterator_st to, const void *to_find)
+sol_iterator_t SortedListFind(sol_t *sol, sol_iterator_t from, sol_iterator_t to, const void *to_find)
 {
-	int is_before = FALSE;
+	cmp_wrapper_t wrap = {0};
 	
 	assert(NULL != sol);
 	assert(NULL != from.dll_iterator);
 	assert(NULL != to.dll_iterator);
-	/*assert (from.dll != to.dll) */
+	assert(from.dll_iterator != to.dll_iterator);
 	
 	#ifndef NDEBUG
-	if (from.dll != to.dll) /*  */
+	if (from.dll != to.dll)
 	{
 		return to;
 	}
 	#endif
 	
-	while (TRUE != SortedListIsSameIter(to, from) && (FALSE == is_before))
-	{
-		is_before = IsBefore(sol, SortedListGetData(from), to_find);
-		if (TRUE == is_before)
-		{
-			return from;
-		}
-		from = SortedListNextIter(from);
-	}
+	wrap.cmp = sol->user_func;
+	wrap.param = (void *)to_find;
 	
+	from.dll_iterator = DLLFind(from.dll_iterator, to.dll_iterator, CmpToIsMatch, &wrap);
+
 	return from;
 }
 
-int SortedListForEach(iterator_st from, iterator_st to, action_func_t user_func, void *param)
+int SortedListForEach(sol_iterator_t from, sol_iterator_t to, action_func_t user_func, void *param)
 {
 	assert(NULL != from.dll_iterator);
 	assert(NULL != to.dll_iterator);
@@ -182,16 +188,16 @@ int SortedListForEach(iterator_st from, iterator_st to, action_func_t user_func,
 	return DLLForEach(from.dll_iterator, to.dll_iterator, user_func, param);
 }
 
-void *SortedListGetData(iterator_st iterator)
+void *SortedListGetData(sol_iterator_t iterator)
 {
 	assert(NULL != iterator.dll_iterator);
 	
 	return DLLGetData(iterator.dll_iterator);
 }
 
-iterator_st SortedListBeginIter(const sol_t *sol)
+sol_iterator_t SortedListBeginIter(const sol_t *sol)
 {
-	iterator_st begin_iter = {NULL};
+	sol_iterator_t begin_iter = {NULL};
 	
 	assert(NULL != sol);
 	
@@ -204,9 +210,9 @@ iterator_st SortedListBeginIter(const sol_t *sol)
 	return begin_iter;
 }
 
-iterator_st SortedListEndIter(const sol_t *sol)
+sol_iterator_t SortedListEndIter(const sol_t *sol)
 {
-	iterator_st end_iter = {NULL};
+	sol_iterator_t end_iter = {NULL};
 	
 	assert(NULL != sol);
 	
@@ -219,9 +225,9 @@ iterator_st SortedListEndIter(const sol_t *sol)
 	return end_iter;
 }
 
-iterator_st SortedListNextIter(iterator_st iterator)
+sol_iterator_t SortedListNextIter(sol_iterator_t iterator)
 {
-	iterator_st next_iter = {NULL};
+	sol_iterator_t next_iter = {NULL};
 		
 	assert(NULL != iterator.dll_iterator);
 	
@@ -234,9 +240,9 @@ iterator_st SortedListNextIter(iterator_st iterator)
 	return next_iter;
 }
 
-iterator_st SortedListPrevIter(iterator_st iterator)
+sol_iterator_t SortedListPrevIter(sol_iterator_t iterator)
 {
-	iterator_st prev_iter = {NULL};
+	sol_iterator_t prev_iter = {NULL};
 	
 	assert(NULL != iterator.dll_iterator);
 	
@@ -249,7 +255,7 @@ iterator_st SortedListPrevIter(iterator_st iterator)
 	return prev_iter;
 }
 
-int SortedListIsSameIter(iterator_st iter1, iterator_st iter2)
+int SortedListIsSameIter(sol_iterator_t iter1, sol_iterator_t iter2)
 {
 	assert(NULL != iter1.dll_iterator);
 	assert(NULL != iter2.dll_iterator);
@@ -263,32 +269,64 @@ int SortedListIsSameIter(iterator_st iter1, iterator_st iter2)
 
 sol_t *SortedListMerge(sol_t *dest_sol, sol_t *src_sol)
 {
-	iterator_st from_iter = {NULL};
-	iterator_st to_iter = {NULL};
-	iterator_st src_merge_iter = {NULL};
-	iterator_st dest_splice_iter = {NULL};
+	sol_iterator_t dest_run = {0};
+	sol_iterator_t src_run = {0};
 	
 	assert(NULL != dest_sol);
 	assert(NULL != src_sol);
 	
-	from_iter = SortedListBeginIter(dest_sol);
-	to_iter = SortedListEndIter(dest_sol);
-	src_merge_iter = SortedListBeginIter(src_sol);
+	dest_run = SortedListBeginIter(dest_sol);
+	src_run = SortedListBeginIter(src_sol);
 	
 	while (TRUE != SortedListIsEmpty(src_sol))
 	{
-		dest_splice_iter = SortedListFind(dest_sol, from_iter, to_iter, SortedListGetData(src_merge_iter));	/* findif with IsBigger */
+		while ((NULL != SortedListNextIter(dest_run).dll_iterator) && (0 < dest_sol->user_func(SortedListGetData(src_run), SortedListGetData(dest_run))))
+		{
+			dest_run = SortedListNextIter(dest_run);
+		}
 		
-		/* should use another while to advance 'to' till not bigger and than do splice */
-		DLLSplice(dest_splice_iter.dll_iterator, src_merge_iter.dll_iterator, DLLNextIter(src_merge_iter.dll_iterator));
-		src_merge_iter = SortedListBeginIter(src_sol);
-		from_iter = dest_splice_iter;
+		while ((NULL != SortedListNextIter(src_run).dll_iterator) && (NULL != SortedListNextIter(dest_run).dll_iterator) &&
+				(0 >= dest_sol->user_func(SortedListGetData(src_run), SortedListGetData(dest_run))))
+		{
+			src_run = SortedListNextIter(src_run);
+		}
+		
+		if (NULL == SortedListNextIter(dest_run).dll_iterator)
+		{
+			while (NULL != SortedListNextIter(src_run).dll_iterator)
+			{
+				src_run = SortedListNextIter(src_run);
+			}
+		}
+		
+		dest_run.dll_iterator = DLLSplice(dest_run.dll_iterator, SortedListBeginIter(src_sol).dll_iterator, src_run.dll_iterator);
+		src_run = SortedListBeginIter(src_sol);
 	}
 	
-	return dest_sol;	
+	return dest_sol;
 }
 
-static int IsBefore(sol_t *sol, const void *num_in_list, const void *num_to_check)
+static int IsBiggerCmp(const void *data, const void *wrapper)
 {
-	return (0 < sol->user_func(num_in_list, num_to_check));
+	const cmp_wrapper_t *wrap = (cmp_wrapper_t *)wrapper;
+	cmp_func_st compare;
+	
+	assert(NULL != wrapper);
+
+	compare = wrap->cmp;
+
+	return (compare(data, wrap->param) > 0);
 }
+
+static int CmpToIsMatch(const void *data, const void *wrapper)
+{
+	const cmp_wrapper_t *wrap = (cmp_wrapper_t *)wrapper;
+	cmp_func_st compare;
+	
+	assert(NULL != wrap);
+
+	compare = wrap->cmp;
+
+	return !(compare(data, wrap->param));
+}
+

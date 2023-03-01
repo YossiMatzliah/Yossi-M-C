@@ -122,8 +122,8 @@ static void TestSortedListInsertFind()
 	int val2 = 3;
 	int val3 = 1;
 	int val4 = 4;
-	iterator_st insert_node = {NULL};
-	iterator_st check_node = {NULL};
+	sol_iterator_t insert_node = {NULL};
+	sol_iterator_t check_node = {NULL};
 	sol_t *test_sor_l = SortedListCreate(CompareFunc);
 	
 	printf(U_LINE"Test Sorted List Insert:\n"RESET);
@@ -148,8 +148,8 @@ static void TestSortedListRemove()
 	int val1 = 2;
 	int val2 = 3;
 	int val3 = 1;
-	iterator_st delete_node = {NULL};
-	iterator_st check_node = {NULL};
+	sol_iterator_t delete_node = {NULL};
+	sol_iterator_t check_node = {NULL};
 	sol_t *test_sor_l = SortedListCreate(CompareFunc);
 	
 	printf(U_LINE"Test Sorted List Remove:\n"RESET);
@@ -207,8 +207,8 @@ static void TestSortedListForEach()
 	int val5 = 4;
 	int checker = 0;
 	int param_to_add = 3;
-	iterator_st from = {NULL};
-	iterator_st to = {NULL};
+	sol_iterator_t from = {NULL};
+	sol_iterator_t to = {NULL};
 	sol_t *test_sor_l = SortedListCreate(CompareFunc);
 	
 	SortedListInsert(test_sor_l, (void *)&val1);
@@ -235,8 +235,8 @@ static void TestSortedListForEach()
 static void TestSortedListIsSameIter()
 {
 	int val1 = 1;
-	iterator_st from = {NULL};
-	iterator_st to = {NULL};
+	sol_iterator_t from = {NULL};
+	sol_iterator_t to = {NULL};
 	sol_t *test_sor_l = SortedListCreate(CompareFunc);
 	
 	printf(U_LINE"Test Sorted List Is Same Iter:\n"RESET);
@@ -254,9 +254,9 @@ static void TestSortedListFind()
 {
 	int val1 = 1;
 	int val2 = 2;
-	iterator_st from = {NULL};
-	iterator_st to = {NULL};
-	iterator_st check_node = {NULL};
+	sol_iterator_t from = {NULL};
+	sol_iterator_t to = {NULL};
+	sol_iterator_t check_node = {NULL};
 	sol_t *test_sor_l = SortedListCreate(CompareFunc);
 	
 	printf(U_LINE"Test sorted list Find:\n"RESET);
@@ -265,7 +265,6 @@ static void TestSortedListFind()
 	SortedListInsert(test_sor_l, (void *)&val2);
 	from = SortedListBeginIter(test_sor_l);
 	to = SortedListPrevIter(SortedListEndIter(test_sor_l));
-	
 	PrintSortedList(test_sor_l);
 
 	check_node = SortedListFind(test_sor_l, from, to, (void *)&val2);
@@ -283,9 +282,9 @@ static void TestSortedListFindIf()
 	int val5 = 2;
 	int val6 = 5;
 	
-	iterator_st from = {NULL};
-	iterator_st to = {NULL};
-	iterator_st check_node = {NULL};
+	sol_iterator_t from = {NULL};
+	sol_iterator_t to = {NULL};
+	sol_iterator_t check_node = {NULL};
 	sol_t *test_sor_l = SortedListCreate(CompareFunc);
 
 	SortedListInsert(test_sor_l, (void *)&val1);
@@ -358,7 +357,7 @@ static void TestSortedListMerge()
 
 static void PrintSortedList(sol_t *sorted_list)
 {
-	iterator_st iter = SortedListBeginIter(sorted_list);
+	sol_iterator_t iter = SortedListBeginIter(sorted_list);
 	
 	printf("Sorted List IS:\n");
 	printf("NULL<---->");

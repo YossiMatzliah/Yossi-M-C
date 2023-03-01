@@ -32,7 +32,7 @@ static void TestDLLMultiFind();
 static void TestDLLSplice();
 static void PrintDLL(dll_t *dll);
 
-int IsMatch(void *data, const void *parameter);
+int IsMatch(const void *data, const void *parameter);
 
 /*****************************************************************/
 
