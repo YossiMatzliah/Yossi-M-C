@@ -1,0 +1,10 @@
+# Ignore everything
+*
+
+#exclude these files
+!*/
+!.myfuncs 
+!*.c
+!*.h
+!makefile*
+!.gitignore
