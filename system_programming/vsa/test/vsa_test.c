@@ -1,11 +1,11 @@
 /************************************
 *	Developer :	Yossi Matzliah      *
 *	Reviewer  :	Daniel Wurtzel 		*
-*	Date      : 08/03/2023			*
+*	Date      : 11/03/2023			*
 ************************************/
 
 #include <stdio.h>	/* printf */
-#include <stdlib.h>	/* system */
+#include <stdlib.h>	/* malloc, free */
 
 #include "vsa.h"
 
@@ -26,10 +26,10 @@
 #define NEW_LINE printf("\n")
 
 static void InitTest();
-static void LargestChunkAvailableTest();/*
+static void LargestChunkAvailableTest();
 static void AllocTest();
-static void CountTest();
-static void FreeTest();*/
+static void FreeTest();
+static void DeFragTest();
 
 /***********************************************/
 
@@ -38,25 +38,26 @@ int main()
 	InitTest();
 
 	LargestChunkAvailableTest();
-/*
-	AllocTest();*/
-/*
-	CountTest();
-	
+
+	AllocTest();
+
 	FreeTest();
 	
+	DeFragTest();
 	
-*/
+	
+
 	return 0; 
 }
 
 static void InitTest()
 {
 	vsa_t *vsa = NULL;
-	char *pool = (char *)malloc(160); 
+	size_t segment_size = 160;
+	char *pool = (char *)malloc(segment_size); 
 	
-	vsa = VSAInit(pool, 160);
-	printf(U_LINE"\nTesting VSAInit\n"RESET);
+	vsa = VSAInit(pool, segment_size);
+	printf(U_LINE"\nTesting VSAInit:\n\n"RESET);
 	
 	PRINT_TEST(NULL != vsa);
 	PRINT_TEST(pool == (char *)vsa);
@@ -64,8 +65,8 @@ static void InitTest()
 	free(pool);
 	
 	printf("Testing if not aligned:\n");
-	pool = (char *)malloc(160);
-	vsa = VSAInit((pool + 1), 160);
+	pool = (char *)malloc(segment_size);
+	vsa = VSAInit((pool + 1), segment_size);
 	PRINT_TEST(pool + WORD_SIZE == (char *)vsa);
 	
 	NEW_LINE;
@@ -82,116 +83,106 @@ static void LargestChunkAvailableTest()
 	
 	memory_pool_ptr = malloc(segment_size);
 	
-	printf(U_LINE"Test vsa Largest Chunk Available:\n"RESET);
+	printf(U_LINE"Test vsa Largest Chunk Available:\n\n"RESET);
 	
 	vsa = VSAInit(memory_pool_ptr, segment_size);
 	
 	largest_chunk = VSALargestChunkAvailable(vsa);
-	PRINT_TEST(largest_chunk == segment_size - WORD_SIZE);
+	PRINT_TEST(largest_chunk == segment_size - (2 * WORD_SIZE));
 	
 	free(memory_pool_ptr);
 }
-/*
+
 static void AllocTest()
 {
 	vsa_t *vsa = NULL;
+	size_t segment_size = 64;
 	char *alloc1 = NULL;
 	char *alloc2 = NULL;
-	int *alloc3 = NULL;
+	char *alloc3 = NULL;
+	char *alloc4 = NULL;
+	size_t size_block_1 = 8;
+	size_t size_block_2 = 16;
+	size_t size_block_3 = 2;
+	size_t size_block_4 = 2;
 	
-	char *pool = (char *)malloc(160); 
+	char *pool = (char *)malloc(segment_size);
 	
-	printf(U_LINE"\nTesting VSAAlloc\n"RESET);
-	vsa = VSAInit(pool, 160, 16);
-	alloc1 = (char *)VSAAlloc(fsa);
-	PRINT_TEST(pool + WORD_SIZE == alloc1);
-	alloc2 = (char *)VSAAlloc(fsa);
-	PRINT_TEST(pool + WORD_SIZE + (2 * WORD_SIZE) == alloc2);
+	printf(U_LINE"\nTesting VSAAlloc:\n\n"RESET);
+	vsa = VSAInit(pool, segment_size);
+	alloc1 = (char *)VSAAlloc(vsa, size_block_1);
+	PRINT_TEST((char *)vsa + (2 * WORD_SIZE) == alloc1);
+	alloc2 = (char *)VSAAlloc(vsa, size_block_2);
+	PRINT_TEST(NULL != alloc2);
 	PRINT_TEST((2 * WORD_SIZE) == alloc2 - alloc1);
-	
-	alloc3 = (int *)VSAAlloc(fsa);
-	PRINT_TEST((2 * WORD_SIZE) == (char *)alloc3 - alloc2);
-	
-	free(pool);
-}*/
-/*
-static void CountTest()
-{
-	fsa_t *fsa = NULL;
-	size_t count = 0;
-	char *pool = (char *)malloc(160); 
-	char *alloc = NULL;
-	
-	printf(U_LINE"\nTesting FSACountFree\n"RESET);
-	fsa = FSAInit(pool, 160, 16);
-	
-	count = FSACountFree(fsa);
-	printf("count is: %ld\n", count);
-	printf("Count Test before alloc\n");
-	PRINT_TEST(9 == count);
-	
-	FSAAlloc(fsa);
-	count = FSACountFree(fsa);
-	printf("count is: %ld\n", count);
-	printf("Count Test after Alloc\n");
-	PRINT_TEST(8 == count);
-	FSAAlloc(fsa);
-	alloc = (char *)FSAAlloc(fsa);
-	FSAAlloc(fsa);
-	FSAAlloc(fsa);
-	FSAAlloc(fsa);
-	FSAAlloc(fsa);
-	FSAAlloc(fsa);
-	
-	count = FSACountFree(fsa);
-	printf("count is: %ld\n", count);
-	FSAAlloc(fsa);
-	count = FSACountFree(fsa);
-	printf("count is: %ld\n", count);
-	FSAFree(fsa, alloc);
-	count = FSACountFree(fsa);
-	printf("count is: %ld\n", count);
+	alloc3 = (char *)VSAAlloc(vsa, size_block_3);
+	PRINT_TEST(NULL != (void *)alloc3);
+	alloc4 = (char *)VSAAlloc(vsa, size_block_4);
+	PRINT_TEST(NULL == (void *)alloc4);
 	
 	free(pool);
 }
+
 
 static void FreeTest()
 {
-	fsa_t *fsa = NULL;
-	size_t count = 0;
-	char *pool = (char *)malloc(40); 
-	char *alloc1 = NULL;
+	vsa_t *vsa = NULL;
+	size_t segment_size = 72;
 	char *alloc2 = NULL;
-	printf(U_LINE"\nTesting FSAFree\n"RESET);
-	fsa = FSAInit(pool, 40, 16);
+	char *alloc4 = NULL;
+	size_t size_block_1 = 8;
+	size_t size_block_2 = 16;
+	size_t size_block_3 = 2;
+	size_t size_block_4 = 2;
 	
-	count = FSACountFree(fsa);
-	printf("count is: %ld\n", count);
-	printf("Count Test before alloc\n");
-	PRINT_TEST(2 == count);
+	char *pool = (char *)malloc(segment_size); 
 	
-	alloc1 = (char *)FSAAlloc(fsa);
-	count = FSACountFree(fsa);
-	printf("count is: %ld\n", count);
-	printf("Count Test after Alloc\n");
-	PRINT_TEST(1 == count);
-	alloc2 = (char *)FSAAlloc(fsa);
+	printf(U_LINE"\nTesting VSAFree:\n\n"RESET);
+	vsa = VSAInit(pool + 1, segment_size);
+	(char *)VSAAlloc(vsa, size_block_1);
+	alloc2 = (char *)VSAAlloc(vsa, size_block_2);
+	(char *)VSAAlloc(vsa, size_block_3);
+	alloc4 = (char *)VSAAlloc(vsa, size_block_4);
+	PRINT_TEST(NULL == (void *)alloc4);
 	
-	count = FSACountFree(fsa);
-	printf("count is: %ld\n", count);
-	PRINT_TEST(0 == count);
-	PRINT_TEST(40 - WORD_SIZE == alloc2 - pool + WORD_SIZE);
-	printf("alloc2 ptr is: %p, pool ptr is: %p\n", alloc2, pool);
-	FSAFree(fsa, alloc2);
-	count = FSACountFree(fsa);
-	printf("count is: %ld\n", count);
-	FSAFree(fsa, alloc1);
-	count = FSACountFree(fsa);
-	printf("count is: %ld\n", count);
-	PRINT_TEST(2 == count);
+	printf("free:\n");
+	VSAFree(alloc2);
+	alloc4 = (char *)VSAAlloc(vsa, size_block_4);
+	PRINT_TEST(alloc4 == alloc2);	
 	
 	free(pool);
 }
-*/
 
+static void DeFragTest()
+{
+	vsa_t *vsa = NULL;
+	size_t segment_size = 64;
+	char *alloc2 = NULL;
+	char *alloc3 = NULL;
+	char *alloc4 = NULL;
+	size_t size_block_1 = 8;
+	size_t size_block_2 = 16;
+	size_t size_block_3 = 8;
+	size_t size_block_4 = 32;
+	
+	char *pool = (char *)malloc(segment_size); 
+	
+	printf(U_LINE"\nTesting VSADeFrag:\n\n"RESET);
+	vsa = VSAInit(pool, segment_size);
+	(char *)VSAAlloc(vsa, size_block_1);
+	alloc2 = (char *)VSAAlloc(vsa, size_block_2);
+	alloc3 = (char *)VSAAlloc(vsa, size_block_3);
+	alloc4 = (char *)VSAAlloc(vsa, size_block_4);
+	
+	VSAFree(alloc2);
+	PRINT_TEST(size_block_2 == VSALargestChunkAvailable(vsa));
+	VSAFree(alloc3);
+	PRINT_TEST((size_block_2 + size_block_3 + WORD_SIZE) == VSALargestChunkAvailable(vsa));
+	alloc4 = (char *)VSAAlloc(vsa, size_block_4);
+	PRINT_TEST(NULL != alloc4);
+	PRINT_TEST(alloc2 == alloc4);
+	PRINT_TEST(0 == VSALargestChunkAvailable(vsa));
+	
+	free(pool);
+}
 
