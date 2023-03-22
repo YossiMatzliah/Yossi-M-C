@@ -5,6 +5,7 @@
 ************************************/
 
 #include <assert.h>	/* assert */
+#include <errno.h>	/* errno  */
 
 #include "vsa.h"	
 
@@ -58,6 +59,11 @@ vsa_t *VSAInit(void *memory_pool, size_t segment_size)
 	new_vsa->segment_size = ALIGN_WORD_SIZE(segment_size);
 	b_info = (b_info_t *)((char *)memory_pool + VSA_STRUCT_SIZE);
 	b_info->block_size = new_vsa->segment_size - VSA_STRUCT_SIZE - B_INFO_STRUCT_SIZE;
+	
+	if (NULL == new_vsa)
+	{
+		errno = ENOMEM;
+	}
 	
 	return new_vsa;
 }
@@ -118,6 +124,8 @@ size_t VSALargestChunkAvailable(vsa_t *pool)
 	size_t max_chunk = 0;
 	b_info_t *runner = NULL;
 	b_info_t *next = NULL;
+    
+    assert(NULL != pool);
     
     DeFrag(pool);
     

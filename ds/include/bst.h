@@ -68,7 +68,7 @@ void BSTDestroy(bst_t *bst);
 * 
 * @return:
 *	Returns iterator to the newly inserted data.
-*	In case of failure - Returns NULL.
+*	In case of failure - Returns EndIter.
 *		If the key already exists in the bst, the behavior is undefined.
 *
 * complexity
@@ -89,7 +89,7 @@ bst_iter_t BSTInsert(bst_t *bst, void *data);
 *	none
 *
 * complexity
-*	Time: O(n), Amortized O(log(n)). 
+*	Time: O(log(n)). Amortized O(1). 
 *	Space O(1)
 */
 void BSTRemove(bst_iter_t iter);
@@ -252,7 +252,7 @@ bst_iter_t BSTEndIter(const bst_t *bst);
 *	Returns iterator to the next key according to In-Order traversal.
 *
 * complexity
-*	Time: O(?)
+*	Time: O(log(n)). Amortized O(1)
 *	Space O(1)
 */																							
 bst_iter_t BSTNextIter(const bst_iter_t iter);																																								
@@ -270,7 +270,7 @@ bst_iter_t BSTNextIter(const bst_iter_t iter);
 *	Returns iterator to the previous key according to In-Order traversal.
 *
 * complexity
-*	Time: O(?)
+*	Time: O(log(n)). Amortized O(1)
 *	Space O(1)
 */				
 bst_iter_t BSTPrevIter(const bst_iter_t iter);																																								
