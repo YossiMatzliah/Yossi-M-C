@@ -305,6 +305,7 @@ bst_iter_t BSTFind(const bst_t *bst, const void *key)
 	bst_iter_t current = NULL;
 	
 	assert(NULL != bst);
+	assert(NULL != key);
 	
 	current = bst->dummy_root.children[LEFT];
 	while (current != BSTEndIter(bst) && NULL != current)
@@ -316,7 +317,7 @@ bst_iter_t BSTFind(const bst_t *bst, const void *key)
 		current = current->children[bst->cmp_func(current->data, key) < 0];
 	}
 
-	return NULL;
+	return BSTEndIter(bst);
 }
 
 int BSTForEach(bst_iter_t from, const bst_iter_t to, int (*action_func)(void *, void *), void *param)
@@ -398,7 +399,7 @@ static void SwitchParentChild(bst_iter_t parent_iter, bst_iter_t new_child_iter,
 
 static size_t BSTHeightRec(bst_node_t *node)
 {
-	if (node == NULL || ((node->children[LEFT] == NULL && node->children[RIGHT] == NULL)))
+	if (NULL == node || NULL == ((node->children[LEFT] && NULL == node->children[RIGHT])))
 	{
 		return 0;
 	}

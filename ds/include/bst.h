@@ -102,10 +102,11 @@ void BSTRemove(bst_iter_t iter);
 *	bst - Pointer to the bst.
 * 		If the pointer is invalid - the behavior is undefined.
 *	key - key to find within the bst.
-* 
+*		IF key is NULL - the behavior is undefined. 
+*
 * @return:
 *	Returns an iterator to the data which is equal to the key.
-*	Returns NULL if there is no match.
+*	Returns invalid iterator if there is no match.
 *
 * complexity
 *	Time: O(n), Amortized O(log(n)).
@@ -126,7 +127,8 @@ bst_iter_t BSTFind(const bst_t *bst, const void *key);
 * @return:
 *	Returns action_func return value:    
 *	0 upon success.
-*		if one of the operations of the action func fails the function will return a non-zero value.
+*		if one of the operations of the action func fails the function will return a non-zero value
+*		 and won't continue.
 *
 * complexity
 *	Time: O(n)

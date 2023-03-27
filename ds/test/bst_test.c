@@ -234,7 +234,7 @@ static void TestBSTFind()
 	
 	key = 100;
 	iter = BSTFind(bst, &key);
-	PRINT_TEST(NULL == iter);
+	PRINT_TEST(BSTEndIter(bst) == iter);
 	
 	BSTDestroy(bst);
 }

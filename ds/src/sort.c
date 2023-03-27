@@ -1,6 +1,6 @@
 /************************************
 *	Developer :	Yossi Matzliah      *
-*	Reviewer  :	Or	  				*
+*	Reviewer  :	Oran  				*
 *	Date      : 14/03/2023			*
 ************************************/
 
@@ -174,6 +174,26 @@ int RadixSort(int array[], size_t size)
 	
 	return status;
 }
+
+ssize_t BinarySearchIterative(int *arr, size_t size, int num)
+{
+	int middle = size;
+	
+	while (0 != middle)
+	{
+		if (*(arr + middle) == num)
+		{
+			return middle;
+		}
+		
+		else if (*(arr + middle) > num)
+		{
+			
+		} 
+	}
+}
+
+/*********************************************************************/
 	
 static int CountingSortForRadix(int array[], size_t size, int base)
 {

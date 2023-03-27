@@ -1,6 +1,6 @@
 /************************************
 *	Developer :	Yossi Matzliah      *
-*	Reviewer  :	Or	  				*
+*	Reviewer  :	Oran  				*
 *	Date      : 14/03/2023			*
 ************************************/
 
@@ -34,6 +34,7 @@ static void TestInsertionSort();
 static void TestSelectionSort();
 static void TestCountingSort();
 static void TestRadixSort();
+static void TestBinarySearch();
 
 static int IsSameArr(int arr1[], int arr2[], size_t size);
 int CmpFuncAscending(const int lhs, const int rhs);
@@ -50,6 +51,7 @@ int main()
 	TestSelectionSort();
 	TestCountingSort();
 	TestRadixSort();
+	TestBinarySearch();
 	
 	return 0;
 }
@@ -695,6 +697,12 @@ static void TestRadixSort()
 	printf("Avarage time for my Radix sort(ascend order): %f\n", avg_time);
 	printf("Avarage time for built-in qsort(ascend order): %f\n", q_avg_time);
 }
+
+static void TestBinarySearch()
+{
+	
+}
+
 /******************************************************/
 
 int CmpFuncAscending(const int lhs, const int rhs)
