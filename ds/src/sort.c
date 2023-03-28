@@ -1,7 +1,7 @@
 /************************************
 *	Developer :	Yossi Matzliah      *
 *	Reviewer  :	Oran  				*
-*	Date      : 14/03/2023			*
+*	Date      : 28/03/2023			*
 ************************************/
 
 #include <assert.h> 	/* asserts */
@@ -177,20 +177,92 @@ int RadixSort(int array[], size_t size)
 
 ssize_t BinarySearchIterative(int *arr, size_t size, int num)
 {
-	int middle = size;
+	int *middle = NULL;
+	int *left = NULL;
+	int *right = NULL;
 	
-	while (0 != middle)
+	assert(NULL != arr);
+	
+	left = arr;
+	right = arr + size - 1;	 
+	
+	while (left <= right)
 	{
-		if (*(arr + middle) == num)
+		middle = left + ((right - left) / 2);
+		 
+		if (*middle == num)
 		{
-			return middle;
+			return (int)(middle - arr);
 		}
 		
-		else if (*(arr + middle) > num)
+		else if (*middle < num)
 		{
-			
+			left = middle + 1;
+		}
+		
+		else
+		{
+			right = middle - 1;
 		} 
 	}
+	
+	return -1;
+}
+
+ssize_t BinarySearchRecursive(int *arr, size_t size, int num)
+{
+	size_t middle = size / 2;
+	ssize_t res = 0;
+	
+	assert(NULL != arr);
+	
+	if (size == 0)
+	{
+		return -1;
+	}
+	
+	if (arr[middle] == num)
+	{
+		return middle;
+	}
+	
+	else if (arr[middle] < num)
+	{
+		res = BinarySearchRecursive(arr + middle + 1, middle, num);
+		
+		if (-1 == res)
+		{
+			return -1;
+		}
+		else
+		{
+			return middle + res + 1;
+		}
+	}
+	
+	else
+	{
+		return BinarySearchRecursive(arr, middle, num);
+	}
+	
+	return -1;
+}
+
+int MergeSort(int *arr_to_sort, size_t num_elements)
+{
+	size_t mid = num_elements / 2;
+
+	if (1 >= num_elements) 
+	{
+		return 0;
+	}
+	
+	MergeSort(arr_to_sort, mid);
+	MergeSort(arr_to_sort + mid, num_elements - mid);
+	
+	Merge(arr_to_sort, 0, mid - 1, num_elements - 1);
+	
+	return 0;
 }
 
 /*********************************************************************/
@@ -241,4 +313,56 @@ static int CountingSortForRadix(int array[], size_t size, int base)
 	free(sort_arr);
 
 	return SUCCESS;
+}
+
+void Merge(int arr_to_sort[], int l, int m, int r)
+{
+    int i = 0;
+    int j = 0;
+    int k = 0;
+    int n1 = m - l + 1;
+    int n2 = r - m;
+    
+    int L[n1], R[n2];
+    
+    for (i = 0; i < n1; i++)
+    {
+        L[i] = arr_to_sort[l + i];
+    }
+    for (j = 0; j < n2; j++)
+    {
+        R[j] = arr_to_sort[m + 1 + j];
+    }
+    i = 0;
+    j = 0;
+    k = l;
+    
+    while (i < n1 && j < n2) 
+    {
+        if (L[i] <= R[j]) 
+        {
+            arr_to_sort[k] = L[i];
+            i++;
+        }
+        else 
+        {
+            arr_to_sort[k] = R[j];
+            j++;
+        }
+        k++;
+    }
+    
+    while (i < n1) 
+    {
+        arr_to_sort[k] = L[i];
+        i++;
+        k++;
+    }
+    
+    while (j < n2) 
+    {
+        arr_to_sort[k] = R[j];
+        j++;
+        k++;
+    }
 }

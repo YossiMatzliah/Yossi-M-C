@@ -1,7 +1,7 @@
 /************************************
 *	Developer :	Yossi Matzliah      *
 *	Reviewer  :	Oran  				*
-*	Date      : 14/03/2023			*
+*	Date      : 28/03/2023			*
 ************************************/
 
 #include <stdio.h>	/* printf */
@@ -29,14 +29,15 @@
 
 /*****************************************************************/
 
-static void TestBubbleSort();
+/*static void TestBubbleSort();
 static void TestInsertionSort();
 static void TestSelectionSort();
 static void TestCountingSort();
-static void TestRadixSort();
-static void TestBinarySearch();
+static void TestRadixSort();*/
+static void TestIterativeBinarySearch();
+static void TestRecursiveBinarySearch();
 
-static int IsSameArr(int arr1[], int arr2[], size_t size);
+/*static int IsSameArr(int arr1[], int arr2[], size_t size);*/
 int CmpFuncAscending(const int lhs, const int rhs);
 int cmpfuncForQsort(const void * lhs, const void * rhs);
 
@@ -44,19 +45,20 @@ int cmpfuncForQsort(const void * lhs, const void * rhs);
 
 int main()
 {
-	srand(time(NULL));
+	/*srand(time(NULL));
 	
 	TestBubbleSort();
 	TestInsertionSort();
 	TestSelectionSort();
 	TestCountingSort();
-	TestRadixSort();
-	TestBinarySearch();
+	TestRadixSort();*/
+	TestIterativeBinarySearch();
+	TestRecursiveBinarySearch();
 	
 	return 0;
 }
 
-static void TestBubbleSort()
+/*static void TestBubbleSort()
 {
 	clock_t start = 0;
 	clock_t end = 0;
@@ -458,7 +460,7 @@ static void TestCountingSort()
 	} 
 	avg_time /= 10;
 	q_avg_time /= 10;
-	/*
+	
 	printf("after sorting:\n");
 	for (i = 0 ; i < ARRAY_SIZE; ++i)
 	{
@@ -469,7 +471,7 @@ static void TestCountingSort()
 	{
 		printf("array[%ld] = %d\n", i, q_array[i]);
 	}
-	*/
+	*//*
 	for (i = 0 ; i < ARRAY_SIZE - 1; ++i)
 	{
 		if (array[i] > array[i + 1])
@@ -508,7 +510,7 @@ static void TestCountingSort()
 		
 		q_time[i] = ((double)end - (double)start) / CLOCKS_PER_SEC;
 		q_avg_time += q_time[i];
-	} 
+	} */
 	/*
 		printf("Ten first indexes after sorting:\n");
 	for (i = 0 ; i < 10; ++i)
@@ -518,7 +520,7 @@ static void TestCountingSort()
 	for (i = 0 ; i < 10; ++i)
 	{
 		printf("q_array[%ld] = %d\n", i, q_array[i]);
-	}*/
+	}*//*
 	PRINT_TEST(TRUE == IsSameArr(array, q_array, ARRAY_SIZE));
 		
 	avg_time /= 10;
@@ -597,7 +599,7 @@ static void TestRadixSort()
 		
 	} 
 	avg_time /= 10;
-	q_avg_time /= 10;
+	q_avg_time /= 10;*/
 	/*
 	printf("after sorting:\n");
 	for (i = 0 ; i < ARRAY_SIZE; ++i)
@@ -609,7 +611,7 @@ static void TestRadixSort()
 	{
 		printf("array[%ld] = %d\n", i, q_array[i]);
 	}
-	*/
+	*//*
 	for (i = 0 ; i < ARRAY_SIZE - 1; ++i)
 	{
 		if (array[i] > array[i + 1])
@@ -621,7 +623,7 @@ static void TestRadixSort()
 	PRINT_TEST(SUCCESS == sort_check);
 	PRINT_TEST(TRUE == IsSameArr(array, q_array, ARRAY_SIZE));
 		
-	printf("Avarage time for my Counting sort(random order): %f\n", avg_time);
+	printf("Avarage time for my Radix sort(random order): %f\n", avg_time);
 	printf("Avarage time for built-in qsort(random order): %f\n", q_avg_time);
 	
 	avg_time = 0;
@@ -649,7 +651,7 @@ static void TestRadixSort()
 		q_time[i] = ((double)end - (double)start) / CLOCKS_PER_SEC;
 		q_avg_time += q_time[i];
 		
-	} 
+	} */
 	/*
 	printf("Ten first indexes after sorting:\n");
 	for (i = 0 ; i < 10; ++i)
@@ -660,7 +662,7 @@ static void TestRadixSort()
 	{
 		printf("q_array[%ld] = %d\n", i, q_array[i]);
 	}
-	*/
+	*//*
 	PRINT_TEST(TRUE == IsSameArr(array, q_array, ARRAY_SIZE));
 		
 	avg_time /= 10;
@@ -696,11 +698,35 @@ static void TestRadixSort()
 	q_avg_time /= 10;
 	printf("Avarage time for my Radix sort(ascend order): %f\n", avg_time);
 	printf("Avarage time for built-in qsort(ascend order): %f\n", q_avg_time);
+	return;
+}
+*/
+static void TestIterativeBinarySearch()
+{
+	int arr[] = {1, 4 , 8, 15, 23, 37, 48, 74};
+	int num_to_find = 37;
+	int ind_checker = 5;
+	
+	printf(U_LINE"\nIterative Binary Search Test:\n"RESET);
+	
+	PRINT_TEST(ind_checker == BinarySearchIterative(arr, 8, num_to_find));
+	
+	num_to_find = 14;
+	PRINT_TEST(-1 == BinarySearchIterative(arr, 8, num_to_find));
 }
 
-static void TestBinarySearch()
+static void TestRecursiveBinarySearch()
 {
+	int arr[] = {1, 4 , 8, 15, 23, 37, 48, 74};
+	int num_to_find = 37;
+	int ind_checker = 5;
 	
+	printf(U_LINE"\nRecursive Binary Search Test:\n"RESET);
+	
+	PRINT_TEST(ind_checker == BinarySearchRecursive(arr, 8, num_to_find));
+	
+	num_to_find = 14;
+	PRINT_TEST(-1 == BinarySearchRecursive(arr, 8, num_to_find));
 }
 
 /******************************************************/
@@ -715,7 +741,7 @@ int cmpfuncForQsort(const void *lhs, const void *rhs)
    return (*(int*)lhs - *(int*)rhs);
 }
 
-static int IsSameArr(int arr1[], int arr2[], size_t size)
+/*static int IsSameArr(int arr1[], int arr2[], size_t size)
 {
 	int is_same = TRUE;
 	size_t i = 0;
@@ -730,5 +756,5 @@ static int IsSameArr(int arr1[], int arr2[], size_t size)
 	}
 	
 	return is_same;
-}
+}*/
 

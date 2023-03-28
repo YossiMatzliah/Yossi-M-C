@@ -37,7 +37,7 @@ vlg:
 	valgrind --leak-check=yes --track-origins=yes -s $(BIN_PATH)./$(TARGET)
 
 edit:
-	gedit $(SRCS) $(INCLUD_PATH)$(WSNAME).h
+	gedit $(SRCS) $(INCLUD_PATH)$(WSNAME).h &
 	
 zip:
 	mkdir -p $(TARGET)_Yossi_review

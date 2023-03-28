@@ -88,7 +88,7 @@ void *VSAAlloc(vsa_t *pool, size_t block_size)
 	
 	runner = (b_info_t *)((char *)pool + VSA_STRUCT_SIZE);
 	
-	while (((char *)pool + pool->segment_size) != (char *)runner)
+	while (((char *)pool + pool->segment_size) != (char *)runner)	/* could be in MACRO, also could use for loop instead */
 	{
 		if ((REAL_BLOCK_SIZE(runner->block_size) >= block_size) && (FREE == (runner->block_size & 1)))
 		{
