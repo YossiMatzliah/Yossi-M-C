@@ -276,7 +276,7 @@ bst_iter_t BSTPrevIter(const bst_iter_t iter)
 	return next_iter;
 }
 
-size_t BSTSize(const bst_t *bst)
+size_t BSTSize(const bst_t *bst)		/*should use ForEach with FuncCount!! */
 {
 	size_t counter = 0;
 	bst_node_t *iter = NULL;

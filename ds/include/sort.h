@@ -113,7 +113,7 @@ int RadixSort(int array[], size_t size);
 
 /*
 * @description: 
-* 	Perform a binary search on an array of integers to find the index of a given number
+* 	Performs an iterative binary search on an array of integers to find the index of a given number
 *
 * @params:
 *	arr: a pointer to a sorted array of integers
@@ -126,13 +126,13 @@ int RadixSort(int array[], size_t size);
 *
 * @complexity:
 *	time - O(log n)
-*	space - O(log n)
+*	space - O(1)
 */
 ssize_t BinarySearchIterative(int *arr, size_t size, int num);
 
 /*
 * @description: 
-* 	Perform a binary search on an array of integers to find the index of a given number
+* 	Perform a recursive binary search on an array of integers to find the index of a given number
 *
 * @params:
 *	arr: a pointer to a sorted array of integers
