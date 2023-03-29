@@ -1,8 +1,6 @@
 alias gd='gcc -ansi -pedantic-errors -Wall -Wextra -g'
-alias gc='gcc -ansi -pedantic-errors -Wall -Wextra -DNDEBUG -03'
+alias gc='gcc -ansi -pedantic-errors -Wall -Wextra -DNDEBUG -O3'
 alias gd9='gcc -std=c99 -pedantic-errors -Wall -Wextra -g'
-alias gc9='gcc -std=c99 -pedantic-errors -Wall -Wextra -DNDEBUG -03'
+alias gc9='gcc -std=c99 -pedantic-errors -Wall -Wextra -DNDEBUG -O3'
 
 alias gdc='gcc -c -ansi -pedantic-errors -Wall -Wextra -g'
-alias compile='gd bitwise.c bitwise_test.c'
-

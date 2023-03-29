@@ -36,24 +36,29 @@ static void TestCountingSort();
 static void TestRadixSort();*/
 static void TestIterativeBinarySearch();
 static void TestRecursiveBinarySearch();
+static void TestMergeSort();
+static void TestQuickSort();
 
-/*static int IsSameArr(int arr1[], int arr2[], size_t size);*/
+static int IsSameArr(int arr1[], int arr2[], size_t size);
 int CmpFuncAscending(const int lhs, const int rhs);
 int cmpfuncForQsort(const void * lhs, const void * rhs);
+int CompareFunc(const void *data1, const void *data2);
 
 /*****************************************************************/
 
 int main()
 {
-	/*srand(time(NULL));
+	srand(time(NULL));
 	
-	TestBubbleSort();
+	/*TestBubbleSort();
 	TestInsertionSort();
 	TestSelectionSort();
 	TestCountingSort();
 	TestRadixSort();*/
 	TestIterativeBinarySearch();
 	TestRecursiveBinarySearch();
+	TestMergeSort();
+	TestQuickSort();
 	
 	return 0;
 }
@@ -729,6 +734,104 @@ static void TestRecursiveBinarySearch()
 	PRINT_TEST(-1 == BinarySearchRecursive(arr, 8, num_to_find));
 }
 
+static void TestMergeSort()
+{
+	int array[10] = {0};
+	int min = 101;
+	int max = 0;
+	size_t i = 0;
+	
+	printf(U_LINE"\nMerge sort Test:\n"RESET);
+	
+	for (i = 0 ; i < 10 ; ++i)
+	{
+		array[i] = rand() % 100 + 1;
+	}
+	
+	printf("Array before sorting:\n");
+	for (i = 0 ; i < 10; ++i)
+	{
+		printf("array[%ld] = %d\n", i, array[i]);
+		if (array[i] < min)
+		{
+			min = array[i];
+		}
+		if (array[i] > max)
+		{
+			max = array[i];
+		}
+	}
+	
+	PRINT_TEST(SUCCESS == MergeSort(array, 10));
+	printf("Array after sorting:\n");
+	for (i = 0 ; i < 10; ++i)
+	{
+		printf("array[%ld] = %d\n", i, array[i]);
+	}
+	PRINT_TEST(min == array[0]);
+	PRINT_TEST(max == array[9]);
+}
+
+static void TestQuickSort()
+{
+	int array[ARRAY_SIZE] = {0};
+	int q_array[ARRAY_SIZE] = {0};
+	clock_t start = 0;
+	clock_t end = 0;
+	double time = {0};
+	double q_time = {0};
+	int min = 101;
+	int max = 0;
+	size_t i = 0;
+	
+	printf(U_LINE"\nQuick sort Test:\n"RESET);
+	
+	for (i = 0 ; i < ARRAY_SIZE ; ++i)
+	{
+		array[i] = rand() % 100 + 1;
+		q_array[i] = array[i];
+	}
+	
+	/*printf("Array before sorting:\n");*/
+	for (i = 0 ; i < ARRAY_SIZE; ++i)
+	{
+		/*printf("array[%ld] = %d\n", i, array[i]);*/
+		if (array[i] < min)
+		{
+			min = array[i];
+		}
+		if (array[i] > max)
+		{
+			max = array[i];
+		}
+	}
+	
+	start = clock(); 
+	Qsort(array, ARRAY_SIZE, sizeof(int), CompareFunc);
+	end = clock();
+	time = ((double)end - (double)start) / CLOCKS_PER_SEC;
+	
+	start = clock(); 
+	qsort(q_array, ARRAY_SIZE, sizeof(int), cmpfuncForQsort);
+	end = clock();
+	q_time = ((double)end - (double)start) / CLOCKS_PER_SEC;
+	
+	
+	/*printf("Array after sorting:\n");
+	for (i = 0 ; i < 10; ++i)
+	{
+		printf("array[%ld] = %d\n", i, array[i]);
+	}*/
+	PRINT_TEST(min == array[0]);
+	PRINT_TEST(max == array[ARRAY_SIZE - 1]);
+	
+	PRINT_TEST(TRUE == IsSameArr(array, q_array, ARRAY_SIZE));
+	
+	printf("Time for my Quick sort(random order): %f\n", time);
+	printf("Time for built-in qsort(random order): %f\n", q_time);
+	
+}
+
 /******************************************************/
 
 int CmpFuncAscending(const int lhs, const int rhs)
@@ -741,7 +844,7 @@ int cmpfuncForQsort(const void *lhs, const void *rhs)
    return (*(int*)lhs - *(int*)rhs);
 }
 
-/*static int IsSameArr(int arr1[], int arr2[], size_t size)
+static int IsSameArr(int arr1[], int arr2[], size_t size)
 {
 	int is_same = TRUE;
 	size_t i = 0;
@@ -756,5 +859,9 @@ int cmpfuncForQsort(const void *lhs, const void *rhs)
 	}
 	
 	return is_same;
-}*/
+}
 
+int CompareFunc(const void *data1, const void *data2)
+{
+	return (*(int *)data1 - *(int *)data2);  
+}

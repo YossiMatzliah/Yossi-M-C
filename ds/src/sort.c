@@ -7,16 +7,24 @@
 #include <assert.h> 	/* asserts */
 #include <limits.h> 	/* INT_MIN, INT_MAX */ 
 #include <stdlib.h> 	/* calloc, free */
+#include <string.h>		/* mmove */
 
 #include "sort.h"
 
-#define FAILURE (1)
-#define SUCCESS (0)
-#define TEN_BASE (10)
+#define FAILURE 	(1)
+#define SUCCESS 	(0)
+#define TEN_BASE 	(10)
+#define WORD_SIZE 	(sizeof(size_t))
+#define NOT_FOUND	(-1)
 
 /************** static func *****************/
 
 static int CountingSortForRadix(int array[], size_t size, int base);
+static int MergeSortRec(int arr[], size_t low, size_t high);
+static int Merge(int arr[], size_t low, size_t mid, size_t high);
+static void SwapVoid(void *data1, void *data2, size_t elem_size);
+static void QsortRec(void *base, size_t size, int low, int high, int (*compar)(const void *, const void *));
+static size_t Partition(void *base, size_t size, int low, int high, int (*compar)(const void *, const void *));
 
 /********************************************/
 
@@ -206,7 +214,7 @@ ssize_t BinarySearchIterative(int *arr, size_t size, int num)
 		} 
 	}
 	
-	return -1;
+	return NOT_FOUND;
 }
 
 ssize_t BinarySearchRecursive(int *arr, size_t size, int num)
@@ -218,7 +226,7 @@ ssize_t BinarySearchRecursive(int *arr, size_t size, int num)
 	
 	if (size == 0)
 	{
-		return -1;
+		return NOT_FOUND;
 	}
 	
 	if (arr[middle] == num)
@@ -232,7 +240,7 @@ ssize_t BinarySearchRecursive(int *arr, size_t size, int num)
 		
 		if (-1 == res)
 		{
-			return -1;
+			return NOT_FOUND;
 		}
 		else
 		{
@@ -245,24 +253,19 @@ ssize_t BinarySearchRecursive(int *arr, size_t size, int num)
 		return BinarySearchRecursive(arr, middle, num);
 	}
 	
-	return -1;
+	return NOT_FOUND;
 }
 
 int MergeSort(int *arr_to_sort, size_t num_elements)
 {
-	size_t mid = num_elements / 2;
+	assert(NULL != arr_to_sort);
+	
+	return MergeSortRec(arr_to_sort, 0, num_elements - 1);
+}
 
-	if (1 >= num_elements) 
-	{
-		return 0;
-	}
-	
-	MergeSort(arr_to_sort, mid);
-	MergeSort(arr_to_sort + mid, num_elements - mid);
-	
-	Merge(arr_to_sort, 0, mid - 1, num_elements - 1);
-	
-	return 0;
+void Qsort(void *base, size_t num_elements, size_t size, int (*compar)(const void *, const void *))
+{
+	QsortRec(base, size, 0, (int)num_elements - 1, compar);
 }
 
 /*********************************************************************/
@@ -315,54 +318,124 @@ static int CountingSortForRadix(int array[], size_t size, int base)
 	return SUCCESS;
 }
 
-void Merge(int arr_to_sort[], int l, int m, int r)
+static int MergeSortRec(int arr[], size_t low, size_t high)
 {
-    int i = 0;
-    int j = 0;
-    int k = 0;
-    int n1 = m - l + 1;
-    int n2 = r - m;
-    
-    int L[n1], R[n2];
-    
-    for (i = 0; i < n1; i++)
-    {
-        L[i] = arr_to_sort[l + i];
-    }
-    for (j = 0; j < n2; j++)
-    {
-        R[j] = arr_to_sort[m + 1 + j];
-    }
-    i = 0;
-    j = 0;
-    k = l;
-    
-    while (i < n1 && j < n2) 
-    {
-        if (L[i] <= R[j]) 
-        {
-            arr_to_sort[k] = L[i];
-            i++;
-        }
-        else 
-        {
-            arr_to_sort[k] = R[j];
-            j++;
-        }
-        k++;
-    }
-    
-    while (i < n1) 
-    {
-        arr_to_sort[k] = L[i];
-        i++;
-        k++;
-    }
-    
-    while (j < n2) 
-    {
-        arr_to_sort[k] = R[j];
-        j++;
-        k++;
-    }
+	size_t mid = 0;
+	
+	if (low < high)
+	{
+		mid = low + (high - low) / 2;
+		
+		MergeSortRec(arr, low, mid);
+		
+		MergeSortRec(arr, mid + 1, high);
+		
+		return (Merge(arr, low, mid, high));
+	}
+	return SUCCESS;
 }
+
+static int Merge(int arr[], size_t low, size_t mid, size_t high)
+{
+	size_t i = 0;
+	size_t j = 0;
+	size_t k = 0;
+	size_t left_len = mid - low + 1;
+	size_t right_len = high - mid;
+	
+	int *temp_left = malloc(left_len * sizeof(int));
+	int *temp_right = malloc(right_len * sizeof(int));
+
+	if (NULL == temp_right || NULL == temp_left)
+	{
+		free(temp_left);
+		free(temp_right);
+		return FAILURE;
+	}
+	
+	for (i = 0; i < left_len; i++)
+	{
+		temp_left[i] = arr[low + i];
+	}
+
+	for (i = 0; i < right_len; i++)
+	{
+		temp_right[i] = arr[mid + 1 + i];
+	}
+	
+	/*merge arrays*/
+	for (i = 0, j = 0, k = low; k <= high; ++k)
+	{
+		if ((i < left_len) && (j < right_len))
+		{
+			if (temp_left[i] <= temp_right[j])
+			{
+				arr[k] = temp_left[i];
+				i++;
+			}
+			else
+			{
+				arr[k] = temp_right[j];
+				j++;
+			}
+		}
+		else if (i < left_len)
+		{
+			arr[k] = temp_left[i];
+			++i;
+		}
+		else if (j < right_len)
+		{
+			arr[k] = temp_right[j];
+			++j;
+		}
+	}
+  
+	free(temp_left);
+	free(temp_right);
+  
+	return SUCCESS;   
+}
+
+static void QsortRec(void *base, size_t size, int low, int high, int (*compar)(const void *, const void *))
+{	
+	int pivot = 0;
+
+	if (low < high)
+	{
+		pivot = Partition(base, size, low, high, compar);
+
+		QsortRec(base, size, low, pivot - 1, compar);
+		QsortRec(base, size, pivot + 1, high, compar);
+	}
+}
+
+static size_t Partition(void *base, size_t size, int low, int high, int (*compar)(const void *, const void *))
+{
+	int pivot = high;
+	int i = low;
+	int j = low;
+	char *base_ptr = (char*)base;
+
+	for (i = low; i < high; ++i)
+	{
+		if (0 >= compar((base_ptr + (i * size)), (base_ptr + (pivot*size))))
+		{
+			SwapVoid((base_ptr + (i * size)), (base_ptr + (j * size)), size);		
+			++j;
+		}
+	}
+	SwapVoid((base_ptr + ((j) * size)), (base_ptr + (high * size)), size);
+	
+	return j;
+}
+
+static void SwapVoid(void *data1, void *data2, size_t elem_size)
+{
+	char temp_buffer[WORD_SIZE] = {0};
+		
+	memmove(temp_buffer, data1, elem_size);
+	memmove(data1, data2, elem_size);
+	memmove(data2, temp_buffer, elem_size);
+}
+
