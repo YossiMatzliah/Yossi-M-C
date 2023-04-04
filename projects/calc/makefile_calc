@@ -1,4 +1,4 @@
-CC=gcc -ansi -pedantic-errors -Wall -Wextra -lm $(INCLUDE_PATH)
+CC=gcc -ansi -pedantic-errors -Wall -Wextra $(INCLUDE_PATH)
 GC=gcc -ansi -pedantic-errors -Wall -Wextra -DNDEBUG -O3 $(INCLUDE_PATH) #optimizations
 INCLUDE_PATH=-I./include/
 INCLUD_PATH=$(CURDIR)/include/
@@ -17,7 +17,7 @@ obj_src = $(WSNAME).o
 TARGET = $(WSNAME)
 
 $(TARGET): $(OBJS)  
-	$(CC) -g $(SRCS) -o $(BIN_PATH)$(TARGET)  
+	$(CC) -g $(SRCS) -lm -o $(BIN_PATH)$(TARGET)  
 	rm $(OBJS)
 debug: $(OBJS) 
 	$(CC) -g $(SRCS) -o $(BIN_PATH)$(TARGET) 

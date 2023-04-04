@@ -26,22 +26,34 @@
 
 
 
-
 /*****************************************************************/
 
-
+static void TestCalcCreateDestroy();
 
 /*****************************************************************/
 
 int main()
 {
-	
+	TestCalcCreateDestroy();
 	
 	return 0;
 }
 
 
-
+static void TestCalcCreateDestroy()
+{
+	calc_t *calc = CalcCreate(100);
+	char expression[100] = "1+1";
+	double result = 0;
+	
+	PRINT_TEST(calc != NULL);
+	
+	Calculator(calc, expression, &result);
+	
+	PRINT_TEST(result == (double)2);
+	
+	CalcDestroy(calc);
+}
 
 
 

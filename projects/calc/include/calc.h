@@ -29,7 +29,7 @@ typedef enum calc_status
 *	Creates a new Calculator.
 *	 											
 * @params:
-*	max_exp - Maximum capacity of expressions.
+*	max_exp - Maximum string length calculator can receive as input.
 *
 * @returns:
 *	Pointer to calculator. In case of error returns NULL.
