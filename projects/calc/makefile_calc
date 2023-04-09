@@ -49,9 +49,9 @@ zip:
 	
 	cp test/$(TARGET)_test.c $(TARGET)_Yossi_review/test/
 	cp src/$(TARGET).c $(TARGET)_Yossi_review/src/
-	#cp src/stack.c $(TARGET)_Yossi_review/src/
+	cp src/stack.c $(TARGET)_Yossi_review/src/
 	cp include/$(TARGET).h $(TARGET)_Yossi_review/include/
-	#cp include/stack.h $(TARGET)_Yossi_review/include/
+	cp include/stack.h $(TARGET)_Yossi_review/include/
 	cp makefile_$(TARGET) $(TARGET)_Yossi_review/
 
 	tar -czvf $(TARGET)_Yossi_review.tar.gz $(TARGET)_Yossi_review

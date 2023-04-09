@@ -1,8 +1,8 @@
 /************************************
-*	Developer :	Yossi Matzliah      *
-*	Reviewer  :					*
-*	Date      : 04/04/2023			*
-************************************/
+ *	Developer :	Yossi Matzliah      *
+ *	Reviewer  :	Lilach				*
+ *	Date      : 09/04/2023			*
+ ***********************************/
 
 #ifndef __ILRD__OL13940_CALC__
 #define __ILRD__OL13940_CALC__
@@ -18,8 +18,7 @@ typedef enum calc_status
 	UNBALANCED_PARANTHESIS = 2,
 	DIVISION_BY_ZERO = 3,
 	RANGE_EXCEEDED = 4,
-	EXPRESSION_EXCEEDED = 5,
-	NOT_SUPPORTED = 6 /* decimal */
+	EXPRESSION_EXCEEDED = 5
 } calc_status_t;
 
 /*******************************************************/
@@ -42,7 +41,7 @@ calc_t *CalcCreate(size_t max_exp);
 /*
 * Calculator Description:
 *	Calculates a mathematical expression composed of constants supplied as a string.
-*
+*	
 * @params:
 *	calc - Calculator.
 *   expression - Mathematical expression represeted as a string.
