@@ -9,6 +9,7 @@
 #include <stdio.h>	/*	perror	*/
 #include <errno.h>	/*	errno	*/
 #include <math.h>	/*	pow		*/
+#include <string.h> /*	strlen	*/
 
 #include "stack.h"
 #include "calc.h"
@@ -55,14 +56,15 @@ typedef enum state
 
 enum calc_state
 {
-    NULL_TERM,
-    NOT_NULL_TERM
+	NULL_TERM,
+	PAREN_TERM,
+	NUM_OF_CALC_STATES
 };
 
 typedef state_t (*event_handler_t)(calc_t *calc, char **expression, calc_status_t *status, double *result);
-typedef state_t (*OperatorHandler)(stack_t *stack, calc_status_t *status, double *result);
+typedef state_t (*operator_handler_t)(stack_t *stack, calc_status_t *status, double *result);
 
-OperatorHandler op_lut[NUM_OF_CHARS] = {0};
+operator_handler_t op_lut[NUM_OF_CHARS] = {0};
 
 static int precedence_lut[NUM_OF_CHARS] = {0};
 
@@ -71,11 +73,12 @@ struct calculator
 	stack_t *stack[NUM_OF_STACKS];
 	event_handler_t states_lut[NUM_OF_STATES][NUM_OF_CHARS];
 	state_t current_state;
+	size_t max_exp;
 };
 
 /************** static func *****************/
 
-static void InitLuts(event_handler_t lut[NUM_OF_STATES][NUM_OF_CHARS]);
+static void InitLuts(event_handler_t states_lut[NUM_OF_STATES][NUM_OF_CHARS]);
 static state_t PushNum(calc_t *calc, char **expression, calc_status_t *status, double *result);
 static state_t PushOp(calc_t *calc, char **expression, calc_status_t *status, double *result);
 static state_t CalcFunc(calc_t *calc, char **expression, calc_status_t *status, double *result);
@@ -90,7 +93,7 @@ static state_t DiscardPar(stack_t *stack, calc_status_t *status, double *result)
 static state_t ParError(stack_t *stack, calc_status_t *status, double *result);
 static state_t ErrorState(calc_t *calc, char **expression, calc_status_t *status, double *result);
 static state_t ErrorOp(stack_t *stack, calc_status_t *status, double *result);
-static void	CalcClean(calc_t *calc);
+static void CalcClean(calc_t *calc);
 
 /********************************************/
 
@@ -98,7 +101,7 @@ calc_t *CalcCreate(size_t max_exp)
 {
 	calc_t *calc = NULL;
 
-	assert(max_exp != sizeof(double));
+	assert(0 != max_exp);
 
 	calc = malloc(sizeof(calc_t));
 	if (NULL != calc)
@@ -106,6 +109,7 @@ calc_t *CalcCreate(size_t max_exp)
 		calc->stack[OPERAND] = StackCreate(max_exp, sizeof(double));
 		calc->stack[OPERATOR] = StackCreate(max_exp, sizeof(unsigned char));
 		calc->current_state = INITIAL;
+		calc->max_exp = max_exp;
 
 		if (NULL == calc->stack[OPERAND] || NULL == calc->stack[OPERATOR])
 		{
@@ -113,38 +117,14 @@ calc_t *CalcCreate(size_t max_exp)
 			free(calc->stack[OPERAND]);
 			free(calc->stack[OPERATOR]);
 			free(calc);
-		}
-	}
 
-	InitLuts((calc->states_lut));
+			return NULL;
+		}
+
+		InitLuts((calc->states_lut));
+	}
 
 	return calc;
-}
-
-calc_status_t Calculator(calc_t *calc, const char *expression, double *result)
-{
-	calc_status_t status = SYNTAX_ERROR;
-	state_t next_state = INITIAL;
-	event_t event = PLUS;
-	char *input_runner = 0;
-
-	assert(calc != NULL);
-	assert(expression != NULL);
-	assert(result != NULL);
-
-	input_runner = (char *)expression;
-	calc->current_state = INITIAL;
-
-	while (event != STRING_END && calc->current_state != ERROR)
-	{
-		event = *input_runner;
-		next_state = calc->states_lut[calc->current_state][event](calc, &input_runner, &status, result);
-		calc->current_state = next_state;
-	}
-		
-	CalcClean(calc);
-	
-	return status;
 }
 
 void CalcDestroy(calc_t *calc)
@@ -156,9 +136,40 @@ void CalcDestroy(calc_t *calc)
 	free(calc);
 }
 
+calc_status_t Calculator(calc_t *calc, const char *expression, double *result)
+{
+	calc_status_t status = SYNTAX_ERROR;
+	event_t event = PLUS;
+	char *input_runner = 0;
+
+	assert(calc != NULL);
+	assert(expression != NULL);
+	assert(result != NULL);
+
+	if (strlen(expression) > calc->max_exp)
+	{
+		*result = 0;
+		calc->current_state = ERROR;
+		return EXPRESSION_EXCEEDED;
+	}
+
+	input_runner = (char *)expression;
+	calc->current_state = INITIAL;
+
+	while (event != STRING_END && calc->current_state != ERROR)
+	{
+		event = *input_runner;
+		calc->current_state = calc->states_lut[calc->current_state][event](calc, &input_runner, &status, result);
+	}
+
+	CalcClean(calc);
+
+	return status;
+}
+
 /************************ Static Functions ************************/
 
-static void InitLuts(event_handler_t lut[NUM_OF_STATES][NUM_OF_CHARS])
+static void InitLuts(event_handler_t states_lut[NUM_OF_STATES][NUM_OF_CHARS])
 {
 	size_t i = 0;
 	size_t j = 0;
@@ -169,43 +180,47 @@ static void InitLuts(event_handler_t lut[NUM_OF_STATES][NUM_OF_CHARS])
 
 		for (j = 0; j < NUM_OF_STATES; ++j)
 		{
-			lut[j][i] = ErrorState;
+			states_lut[j][i] = ErrorState;
 		}
 	}
 
 	for (i = '0'; i <= '9'; ++i)
 	{
-		lut[INITIAL][i] = PushNum;
-		lut[EXPECTING_NUM][i] = PushNum;
-		lut[CALC][i] = PushNum;
+		states_lut[INITIAL][i] = PushNum;
+		states_lut[EXPECTING_NUM][i] = PushNum;
+		states_lut[CALC][i] = PushNum;
 	}
-	lut[INITIAL]['+'] = PushNum;
-	lut[INITIAL]['-'] = PushNum;
-	lut[INITIAL]['('] = PushOp; 
-	lut[INITIAL]['\0'] = ErrorState;
 
-	lut[EXPECTING_NUM]['+'] = PushNum;
-	lut[EXPECTING_NUM]['-'] = PushNum;
-	lut[EXPECTING_NUM]['('] = PushOp;
+	states_lut[INITIAL]['+'] = PushNum;
+	states_lut[INITIAL]['-'] = PushNum;
+	states_lut[INITIAL]['('] = PushOp;
+	states_lut[INITIAL][' '] = SkipSpace;
+	states_lut[INITIAL]['\0'] = ErrorState;
 
-	lut[EXPECTING_OP]['+'] = PushOp;
-	lut[EXPECTING_OP]['-'] = PushOp;
-	lut[EXPECTING_OP]['*'] = PushOp;
-	lut[EXPECTING_OP]['/'] = PushOp;
-	lut[EXPECTING_OP]['^'] = PushOp;
-	lut[EXPECTING_OP]['('] = PushOp;
+	states_lut[EXPECTING_NUM]['+'] = PushNum;
+	states_lut[EXPECTING_NUM]['-'] = PushNum;
+	states_lut[EXPECTING_NUM]['('] = PushOp;
+	states_lut[EXPECTING_NUM][' '] = SkipSpace;
 
-	lut[EXPECTING_OP][')'] = CalcFunc;
-	lut[EXPECTING_OP]['\0'] = CalcFunc;
+	states_lut[EXPECTING_OP]['+'] = PushOp;
+	states_lut[EXPECTING_OP]['-'] = PushOp;
+	states_lut[EXPECTING_OP]['*'] = PushOp;
+	states_lut[EXPECTING_OP]['/'] = PushOp;
+	states_lut[EXPECTING_OP]['^'] = PushOp;
+	states_lut[EXPECTING_OP]['('] = PushOp;
+	states_lut[EXPECTING_OP][' '] = SkipSpace;
+	states_lut[EXPECTING_OP][')'] = CalcFunc;
+	states_lut[EXPECTING_OP]['\0'] = CalcFunc;
 
-	lut[CALC]['+'] = PushNum;
-	lut[CALC]['-'] = PushNum;
-	lut[CALC]['*'] = PushOp;
-	lut[CALC]['/'] = PushOp;
-	lut[CALC]['^'] = PushOp;
-	lut[CALC]['('] = PushOp;
-	lut[CALC][')'] = CalcFunc;
-	lut[CALC]['\0'] = CalcFunc;
+	states_lut[CALC]['+'] = PushNum;
+	states_lut[CALC]['-'] = PushNum;
+	states_lut[CALC]['*'] = PushOp;
+	states_lut[CALC]['/'] = PushOp;
+	states_lut[CALC]['^'] = PushOp;
+	states_lut[CALC]['('] = PushOp;
+	states_lut[CALC][' '] = SkipSpace;
+	states_lut[CALC][')'] = CalcFunc;
+	states_lut[CALC]['\0'] = CalcFunc;
 
 	op_lut['+'] = Add;
 	op_lut['-'] = Sub;
@@ -215,42 +230,42 @@ static void InitLuts(event_handler_t lut[NUM_OF_STATES][NUM_OF_CHARS])
 	op_lut['('] = DiscardPar;
 	op_lut[')'] = ParError;
 
-	precedence_lut['+'] = 2;
-	precedence_lut['-'] = 3;
-	precedence_lut['*'] = 4;
-	precedence_lut['/'] = 4;
-	precedence_lut['^'] = 5;
-	precedence_lut['('] = 6;
-	precedence_lut[')'] = 6;
-
-	lut[INITIAL][' '] = SkipSpace;
-	lut[CALC][' '] = SkipSpace;
-	lut[EXPECTING_NUM][' '] = SkipSpace;
-	lut[EXPECTING_OP][' '] = SkipSpace;
+	precedence_lut['+'] = 1;
+	precedence_lut['-'] = 1;
+	precedence_lut['*'] = 2;
+	precedence_lut['/'] = 2;
+	precedence_lut['^'] = 3;
+	precedence_lut['('] = 4;
+	precedence_lut[')'] = 4;
 }
 
 static state_t PushNum(calc_t *calc, char **expression, calc_status_t *status, double *result)
 {
 	double num = 0;
+	char operator= ** expression;
 	state_t state = INITIAL;
 	errno = 0;
 
-	num = strtod(*expression, expression);
+	if (1 == precedence_lut[(int)operator] && '(' == *(*expression + 1))
+	{
+		num = (('-' == **expression) ? -1 : 1);
+		operator= '*';
 
+		StackPush(calc->stack[OPERAND], (const void *)&num);
+		StackPush(calc->stack[OPERATOR], (const void *)&operator);
+		++*expression;
+		*status = SUCCESS;
+
+		return EXPECTING_NUM;
+	}
+
+	num = strtod(*expression, expression);
+	
 	if (errno == 0)
 	{
-		if (StackCapacity(calc->stack[OPERAND]) == StackSize(calc->stack[OPERAND]))
-		{
-			*status = EXPRESSION_EXCEEDED;
-			state = ERROR;
-		}
-
-		else
-		{
-			StackPush(calc->stack[OPERAND], (const void *)&num);
-			*status = SUCCESS;
-			state = EXPECTING_OP;
-		}
+		StackPush(calc->stack[OPERAND], (const void *)&num);
+		*status = SUCCESS;
+		state = EXPECTING_OP;
 	}
 
 	else
@@ -265,10 +280,10 @@ static state_t PushNum(calc_t *calc, char **expression, calc_status_t *status, d
 
 static state_t PushOp(calc_t *calc, char **expression, calc_status_t *status, double *result)
 {
-	char operator = **expression;
+	char operator= ** expression;
 	char prev_operator = 0;
 	state_t state = 0;
-	
+
 	while ((!StackIsEmpty(calc->stack[OPERATOR])) &&
 	 	  (precedence_lut[(int)operator] < precedence_lut[(int)*(char *)StackPeek(calc->stack[OPERATOR])]) &&
 	      ('(' != *(char *)StackPeek(calc->stack[OPERATOR])))
@@ -277,20 +292,11 @@ static state_t PushOp(calc_t *calc, char **expression, calc_status_t *status, do
 		StackPop(calc->stack[OPERATOR]);
 		state = op_lut[(int)prev_operator](calc->stack[OPERAND], status, result);
 	}
-	
-	if (StackCapacity(calc->stack[OPERATOR]) == StackSize(calc->stack[OPERATOR]))
-	{
-		*status = EXPRESSION_EXCEEDED;
-		state = ERROR;
-	}
-	else
-	{
-		StackPush(calc->stack[OPERATOR], (const void*)&operator);
 
-		*status = SUCCESS;
-		*result = *result;
-		++*expression;
-	}
+	StackPush(calc->stack[OPERATOR], (const void *)&operator);
+
+	*status = SUCCESS;
+	++*expression;
 
 	return state;
 }
@@ -305,10 +311,10 @@ static double PeekAndPop(stack_t *stack)
 
 static state_t Add(stack_t *stack, calc_status_t *status, double *result)
 {
-	double a = PeekAndPop(stack);
 	double b = PeekAndPop(stack);
-	
-	*result = b + a;
+	double a = PeekAndPop(stack);
+
+	*result = a + b;
 
 	StackPush(stack, (void *)result);
 	*status = SUCCESS;
@@ -318,10 +324,10 @@ static state_t Add(stack_t *stack, calc_status_t *status, double *result)
 
 static state_t Sub(stack_t *stack, calc_status_t *status, double *result)
 {
-	double a = PeekAndPop(stack);
 	double b = PeekAndPop(stack);
+	double a = PeekAndPop(stack);
 
-	*result = b - a;
+	*result = a - b;
 
 	StackPush(stack, (void *)result);
 	*status = SUCCESS;
@@ -331,9 +337,10 @@ static state_t Sub(stack_t *stack, calc_status_t *status, double *result)
 
 static state_t Mul(stack_t *stack, calc_status_t *status, double *result)
 {
-	double a = PeekAndPop(stack);
 	double b = PeekAndPop(stack);
-	*result = b * a;
+	double a = PeekAndPop(stack);
+
+	*result = a * b;
 
 	StackPush(stack, (void *)result);
 	*status = SUCCESS;
@@ -343,19 +350,20 @@ static state_t Mul(stack_t *stack, calc_status_t *status, double *result)
 
 static state_t Div(stack_t *stack, calc_status_t *status, double *result)
 {
-	double a = PeekAndPop(stack);
 	double b = PeekAndPop(stack);
+	double a = PeekAndPop(stack);
 	*result = 0;
 
-	if (0 == a)
+	if (0 == b)
 	{
 		*status = DIVISION_BY_ZERO;
 		return ERROR;
 	}
-	*result = b / a;
+
+	*result = a / b;
 
 	StackPush(stack, (void *)result);
-	
+
 	*status = SUCCESS;
 
 	return CALC;
@@ -366,11 +374,11 @@ static state_t Pow(stack_t *stack, calc_status_t *status, double *result)
 	double power = PeekAndPop(stack);
 	double base = PeekAndPop(stack);
 	*result = pow(base, power);
-	
+
 	if (errno != 0)
 	{
 		*result = 0;
-		
+
 		*status = RANGE_EXCEEDED;
 		StackPush(stack, (void *)result);
 		return ERROR;
@@ -387,7 +395,7 @@ static state_t DiscardPar(stack_t *stack, calc_status_t *status, double *result)
 	*status = SUCCESS;
 	(void)stack;
 	(void)result;
-	
+
 	return EXPECTING_OP;
 }
 
@@ -395,8 +403,8 @@ static state_t ParError(stack_t *stack, calc_status_t *status, double *result)
 {
 	*status = UNBALANCED_PARANTHESIS;
 	(void)stack;
-	(void)result;
-	
+	*result = 0;
+
 	return ERROR;
 }
 
@@ -405,7 +413,7 @@ static state_t ErrorState(calc_t *calc, char **expression, calc_status_t *status
 	*status = SYNTAX_ERROR;
 	(void)calc;
 	(void)*expression;
-	(void)result;
+	*result = 0;
 
 	return ERROR;
 }
@@ -414,8 +422,8 @@ static state_t ErrorOp(stack_t *stack, calc_status_t *status, double *result)
 {
 	*status = SYNTAX_ERROR;
 	(void)stack;
-	(void)result;
-	
+	*result = 0;
+
 	return ERROR;
 }
 
@@ -425,22 +433,22 @@ static state_t SkipSpace(calc_t *calc, char **expression, calc_status_t *status,
 	(void)calc;
 	(void)result;
 	++*expression;
-	
+
 	return calc->current_state;
 }
 
 static state_t CalcFunc(calc_t *calc, char **expression, calc_status_t *status, double *result)
 {
-	int par_stat = !!(**expression);
+	int paren_stat = !!(**expression);
 	char operator= 0;
 	state_t state = CALC;
 	size_t i = 0;
 	size_t j = 0;
-	OperatorHandler op_lut[2][NUM_OF_CHARS] = {{0}};
+	operator_handler_t op_lut[NUM_OF_CALC_STATES][NUM_OF_CHARS] = {{0}};
 
 	for (i = 0; i < NUM_OF_CHARS; ++i)
 	{
-		for (j = 0; j < 2; ++j)
+		for (j = 0; j < NUM_OF_CALC_STATES; ++j)
 		{
 			op_lut[j][i] = ErrorOp;
 		}
@@ -454,26 +462,26 @@ static state_t CalcFunc(calc_t *calc, char **expression, calc_status_t *status, 
 	op_lut[NULL_TERM]['('] = ParError;
 	op_lut[NULL_TERM]['\0'] = ErrorOp;
 
-	op_lut[NOT_NULL_TERM]['+'] = Add;
-	op_lut[NOT_NULL_TERM]['-'] = Sub;
-	op_lut[NOT_NULL_TERM]['*'] = Mul;
-	op_lut[NOT_NULL_TERM]['/'] = Div;
-	op_lut[NOT_NULL_TERM]['^'] = Pow;
-	op_lut[NOT_NULL_TERM]['('] = DiscardPar;
-	op_lut[NOT_NULL_TERM][')'] = ParError;
+	op_lut[PAREN_TERM]['+'] = Add;
+	op_lut[PAREN_TERM]['-'] = Sub;
+	op_lut[PAREN_TERM]['*'] = Mul;
+	op_lut[PAREN_TERM]['/'] = Div;
+	op_lut[PAREN_TERM]['^'] = Pow;
+	op_lut[PAREN_TERM]['('] = DiscardPar;
+	op_lut[PAREN_TERM][')'] = ParError;
 
-	while (operator != '(' && (!StackIsEmpty(calc->stack[OPERATOR])) && state == CALC)
+	while ('(' != operator && (!StackIsEmpty(calc->stack[OPERATOR])) && CALC == state)
 	{
 		*result = 0;
-		
-		operator = *(char *)StackPeek(calc->stack[OPERATOR]);
+
+		operator = *(char *) StackPeek(calc->stack[OPERATOR]);
 		StackPop(calc->stack[OPERATOR]);
-		state = op_lut[par_stat][(int)operator](calc->stack[OPERAND], status, result);
+		state = op_lut[paren_stat][(int)operator](calc->stack[OPERAND], status, result);
 	}
-	
-	if (par_stat == 1 && operator != '(' && (StackIsEmpty(calc->stack[OPERATOR])))
+
+	if (1 == paren_stat && '(' != operator && (StackIsEmpty(calc->stack[OPERATOR])))
 	{
-		state = op_lut[NULL_TERM]['('](calc->stack[OPERAND], status, result);	/*if ')' and no '('*/
+		state = op_lut[NULL_TERM]['('](calc->stack[OPERAND], status, result); /*if ')' and no '('*/
 	}
 
 	++*expression;
@@ -481,13 +489,13 @@ static state_t CalcFunc(calc_t *calc, char **expression, calc_status_t *status, 
 	return state;
 }
 
-static void	CalcClean(calc_t *calc)
+static void CalcClean(calc_t *calc)
 {
 	size_t i = 0;
 
-	assert(NULL != calc);	
-	
-	for (i = 0; i < NUM_OF_STACKS ; ++i)
+	assert(NULL != calc);
+
+	for (i = 0; i < NUM_OF_STACKS; ++i)
 	{
 		while (!StackIsEmpty(calc->stack[i]))
 		{
@@ -495,4 +503,3 @@ static void	CalcClean(calc_t *calc)
 		}
 	}
 }
-

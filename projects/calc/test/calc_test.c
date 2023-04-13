@@ -22,7 +22,7 @@
 #define NEW_LINE printf("\n")
 
 #define MAX_EXP (100)
-#define NUM_OF_TESTS (82)
+#define NUM_OF_TESTS (84)
 #define NUM_ERR_TESTS (7)
 
 /*****************************************************************/
@@ -149,14 +149,16 @@ static void TestCalculator()
 		{"((10 / 2) - 3) * ((+6 - 2)^2)", 32},
 		{"((2 * 3) + 4) / ((5 - 1) * (2 - 1))", 2.5},
 		{"((10 - (3 * 2)) / 4) + (6 - 2)^2", 17},
-		{"((5 - 2) * ((3 + 4) / 2)) / (2 + 1)", 3.5}
+		{"((5 - 2) * ((3 + 4) / 2)) / (2 + 1)", 3.5},
+		{"(-2) *-(2^4)", 32},
+		{"(1 + 1) ^ (0 + 2) ^ 3", 256}
 	} ;
 
 	printf(U_LINE"\nTest Calculator:\n"RESET);
 
 	PRINT_TEST(calc != NULL);
 	
-	for (i = 0 ; i < NUM_OF_TESTS ; ++i)
+	for (i = 0; i < NUM_OF_TESTS; ++i)
 	{
 		Calculator(calc, test_arr[i].expression, &result);
 		printf("Result is %f\n", result);
@@ -193,10 +195,9 @@ static void TestErrCalculator()
 
 	printf(U_LINE"\nTest Calculator Errors:\n"RESET);
 
-
 	PRINT_TEST(calc != NULL);
 	
-	for (i = 0 ; i < NUM_ERR_TESTS ; ++i)
+	for (i = 0; i < NUM_ERR_TESTS; ++i)
 	{
 		status = Calculator(calc, test_err[i].str, &result);
 		printf("Status is: %d\n", status);
