@@ -11,8 +11,10 @@
 
 #include "../include/dll.h"
 
-#define TRUE (1)
-#define FALSE (0)
+#define TRUE 	(1)
+#define FALSE 	(0)
+#define SUCCESS (0)
+#define FAILURE (1)
 
 typedef struct node node_t;	
 
@@ -86,8 +88,6 @@ dll_t *DLLCreate(void)
 void DLLDestroy(dll_t *dll)
 {
 	node_t *delete_node = NULL;
-	
-	assert(NULL != dll);
 	
 	while (NULL != dll->head)
 	{
@@ -270,7 +270,7 @@ void *DLLPopFront(dll_t *dll)
 
 int DLLForEach(iterator_t from, const iterator_t to, action_func_t user_func, void *param)	
 {
-	int return_val = FALSE;
+	int return_val = SUCCESS;
 	iterator_t iter = NULL;
 	
 	assert(NULL != from);
@@ -279,7 +279,7 @@ int DLLForEach(iterator_t from, const iterator_t to, action_func_t user_func, vo
 	
 	iter = from;
 	
-	while (to != iter && FALSE == return_val)
+	while (to != iter && SUCCESS == return_val)
 	{
 		return_val = user_func(iter->data, param);
 		iter = DLLNextIter(iter);
@@ -362,7 +362,7 @@ static int CountNode(void *data, void *parameter)
 	(void)data;
 	++(*(size_t *)parameter);
 	
-	return 0;
+	return SUCCESS;
 }
 
 static void InitNode(node_t *node ,void *data, node_t *next_node, node_t *prev_node)
