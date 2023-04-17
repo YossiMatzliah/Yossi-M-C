@@ -93,16 +93,29 @@ int VectorPushBack(vector_t *vector, const void *element)
 
 void VectorPopBack(vector_t *vector)
 {
-	assert(NULL != vector);
-	assert(vector->size > 0); /* (add assert(!IsEmpty(vector))*/
+	realoc_flag_t realloc_flag = SUCCESS;
 	
+	assert(NULL != vector);
+	assert(vector->size > 0); 
+	assert(!VectorIsEmpty(vector));
+
 	--vector->size;
 	if (vector->size <= (vector->capacity) / SHRINK_THRESHOLD) /* add minimal cap */
 	{
 		vector->data = realloc(vector->data, vector->element_size * (vector->capacity / GROWTH_FACTOR));
-		/*add the if realloc failed and put return to break*/
-		vector->capacity /= GROWTH_FACTOR;	
+		if (NULL == vector->data)
+		{
+			perror("Memory allocation for the vector data failed \n");
+			realloc_flag = FAILURE;
+		}
+		
+		else
+		{
+			vector->capacity /= GROWTH_FACTOR;	
+		}
 	}
+
+	return realloc_flag;
 }
 
 void *VectorGetAccessToElement(const vector_t *vector, size_t index)
@@ -125,13 +138,14 @@ int VectorReserve(vector_t *vector, size_t reserve_size)
 	{
 		realloc_flag = FAILURE;
 	}
+
 	else
 	{
 		vector->data = new_data;
 		vector->capacity = reserve_size;
 	}
-	return realloc_flag;
 
+	return realloc_flag;
 }
 
 int VectorShrinkToSize(vector_t *vector)
@@ -139,7 +153,7 @@ int VectorShrinkToSize(vector_t *vector)
 	realoc_flag_t realloc_flag = SUCCESS;
 	
 	assert(NULL != vector);
-	/* add assert(!IsEmpty(vector)) */
+	assert(!VectorIsEmpty(vector));
 	
 	vector->data = realloc(vector->data, (vector->size * vector->element_size) + 1);
 	if (NULL == vector)
@@ -152,24 +166,28 @@ int VectorShrinkToSize(vector_t *vector)
 	{
 		vector->capacity = vector->size + 1;
 	}
+
 	return realloc_flag;	
 }
 
 int VectorIsEmpty(const vector_t *vector)
 {
 	assert(NULL != vector);
+
 	return (0 == vector->size);
 }
 
 size_t VectorCapacity(const vector_t *vector)
 {
 	assert(NULL != vector);
+
 	return vector->capacity;
 }
 
 size_t VectorSize(const vector_t *vector)
 {
 	assert(NULL != vector);
+
 	return vector->size;
 }
 

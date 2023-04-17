@@ -36,14 +36,14 @@ hash_table_t *HashTableCreate(size_t capacity, size_t (*hash_func)(const void *v
     assert(NULL != hash_func);
     assert(NULL != is_match_func);
 
-    new_hash_table = malloc(sizeof(hash_table_t));
+    new_hash_table = (hash_table_t *)malloc(sizeof(hash_table_t));
     if (NULL == new_hash_table)
     {
         perror("Allocation Error");
         return NULL;
     }
 
-    new_hash_table->hash_table_array = calloc(capacity, sizeof(dll_t *));
+    new_hash_table->hash_table_array = (dll_t **)calloc(capacity, sizeof(dll_t *));
     if (NULL == new_hash_table->hash_table_array)
     {
         perror("Allocation Error");
@@ -166,14 +166,12 @@ void *HashTableFind(const hash_table_t *table, const void *data)
     {
         found_data_node = DLLFind(DLLBeginIter(BUCKET(bucket_key)), DLLEndIter(BUCKET(bucket_key)), table->is_match_func, (void *)data);
 
-        if (found_data_node == DLLEndIter(BUCKET(bucket_key)))
+        if (!DLLIsSameIter(found_data_node, DLLEndIter(BUCKET(bucket_key))))
         {
-            return NULL;
-        }
-
-        to_return_data = DLLGetData(found_data_node);   /* to increse priority*/
-        DLLRemove(found_data_node);
-        DLLPushFront(BUCKET(bucket_key), to_return_data);
+            to_return_data = DLLGetData(found_data_node);   /* to increse priority*/
+            DLLRemove(found_data_node);
+            DLLPushFront(BUCKET(bucket_key), to_return_data);
+        }   
     }
 
     return to_return_data;
@@ -217,11 +215,14 @@ double HashSTDev(const hash_table_t *table)
     
     for (i = 0; i < table->capacity; ++i) 
     {
+        nodes_in_dll = 0;
+
         if (NULL != BUCKET(i))
         {
-            nodes_in_dll = DLLCount(BUCKET(i));
-            sd += pow(nodes_in_dll - mean, 2);
+            nodes_in_dll = DLLCount(BUCKET(i)); 
         }
+
+        sd += pow(nodes_in_dll - mean, 2);
     }
     
     return sqrt(sd / table->capacity);
