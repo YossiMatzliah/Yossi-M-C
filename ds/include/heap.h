@@ -11,18 +11,6 @@
 
 typedef struct heap heap_t;
 
-/* -------- C FILE --------- */
-
-#include "dynamic_vector.h"
-
-struct heap 
-{
-	vector_t *vec;
-    int (*cmp_func)(const void *, const void *);
-};
-
-/* --------- H FILE ------- */
-
 /* 
 * HeapCreate description:
 *	Creates a new binary heap.
@@ -94,6 +82,43 @@ int HeapPush(heap_t *heap, void *data);
 void HeapPop(heap_t *heap); 
 
 /*
+* HeapRemove description:
+*    Removes the element from the heap and returns its value.
+*
+* @param:
+*    heap - Pointer to the heap.
+*    If the pointer is invalid - the behavior is undefined.
+*    is_match_func - boolean function to match by the param.
+*    param - pointer to the parameter for comparison.
+* 
+* @return:
+*    Returns a pointer to the data of the removed element,
+*
+* complexity
+*    Time: O(n)
+*    Space O(1)
+*/                                                    
+void *HeapRemove(heap_t *heap, int (*is_match_func)(const void *data, const void *param), const void *param);
+
+/*
+* HeapRemoveByKey description:
+*	Removes the element from the heap and returns its value.
+*
+* @param:
+*	heap - Pointer to the heap.
+* 	If the pointer is invalid - the behavior is undefined.
+*   data - the data of the element to be removed.
+* 
+* @return:
+*	Returns a pointer to the data of the removed element,
+*
+* complexity
+*	Time: O(n)
+*	Space O(1)
+*/													
+void *HeapRemoveByKey(heap_t *heap, void *data);
+
+/*
 * HeapPeek description:
 *	Returns the data at the root of the heap.
 *
@@ -143,23 +168,5 @@ size_t HeapSize(const heap_t *heap);
 *	Space O(1)
 */
 int HeapIsEmpty(const heap_t *heap);
-
-/*
-* HeapRemove description:
-*	Removes the element from the heap and returns its value.
-*
-* @param:
-*	heap - Pointer to the heap.
-* 	If the pointer is invalid - the behavior is undefined.
-*   data - the data of the element to be removed.
-* 
-* @return:
-*	Returns a pointer to the data of the removed element,
-*
-* complexity
-*	Time: O(log n)
-*	Space O(1)
-*/													
-void *HeapRemove(heap_t *heap, void *data);
 
 #endif
