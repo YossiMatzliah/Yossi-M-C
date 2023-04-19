@@ -246,32 +246,32 @@ static void TestHeapRemoveByKey()
 
 	test_heap = HeapCreate(KeyCmpFunction);
 
-	HeapPush(test_heap, (void *)&struct_1_ptr);
+	HeapPush(test_heap, (void *)struct_1_ptr);
 	++heap_size;
-	HeapPush(test_heap, (void *)&struct_2_ptr);
+	HeapPush(test_heap, (void *)struct_2_ptr);
 	++heap_size;
-	HeapPush(test_heap, (void *)&struct_3_ptr);
+	HeapPush(test_heap, (void *)struct_3_ptr);
 	++heap_size;
-	HeapPush(test_heap, (void *)&struct_4_ptr);
+	HeapPush(test_heap, (void *)struct_4_ptr);
 	++heap_size;
 
 	PrintStructHeapTree(test_heap);
 
-	return_data = HeapRemoveByKey(test_heap, (void *)&struct_2_ptr);
+	return_data = HeapRemoveByKey(test_heap, (void *)struct_2_ptr);
 	--heap_size;
 	
 	PRINT_TEST((*(test_struct_t **)return_data)->key == struct_2.key);
 	PRINT_TEST(heap_size == HeapSize(test_heap));
 	PrintStructHeapTree(test_heap);
-	return_data = HeapRemoveByKey(test_heap, (void *)&struct_3_ptr);
+	return_data = HeapRemoveByKey(test_heap, (void *)struct_3_ptr);
 	PRINT_TEST((*(test_struct_t **)return_data)->key == struct_3.key);
 	PrintStructHeapTree(test_heap);
-	return_data = HeapRemoveByKey(test_heap, (void *)&struct_not_in_ptr);
+	return_data = HeapRemoveByKey(test_heap, (void *)struct_not_in_ptr);
 	PRINT_TEST(NULL == return_data);
 
-	HeapRemoveByKey(test_heap, (void *)&struct_1_ptr);
+	HeapRemoveByKey(test_heap, (void *)struct_1_ptr);
 	PrintStructHeapTree(test_heap);
-	HeapRemoveByKey(test_heap, (void *)&struct_4_ptr);
+	HeapRemoveByKey(test_heap, (void *)struct_4_ptr);
 	PrintStructHeapTree(test_heap);
 	PRINT_TEST(TRUE == HeapIsEmpty(test_heap));
 
@@ -293,7 +293,7 @@ int IsMatch(const void *data, const void *param)
 
 int KeyCmpFunction(const void *lhd, const void *rhd)
 {
-	return ((*(test_struct_t **)lhd)->key - (*(test_struct_t **)rhd)->key);
+	return (((test_struct_t *)lhd)->key - ((test_struct_t *)rhd)->key);
 }
 
 static void PrintHeapTree(heap_t *heap)
@@ -304,7 +304,7 @@ static void PrintHeapTree(heap_t *heap)
 
     for (i = 0; i < HeapSize(heap); ++i) 
     {
-        printf("%ld  ", *(size_t *)VectorGetAccessToElement(heap->vec, i));
+        printf("%ld  ", **(size_t **)VectorGetAccessToElement(heap->vec, i));
         if (i == nodes_in_level - 1) 
         {
             NEW_LINE;

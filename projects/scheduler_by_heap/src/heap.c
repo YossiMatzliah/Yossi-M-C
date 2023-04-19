@@ -167,6 +167,7 @@ int HeapIsEmpty(const heap_t *heap)
     return VectorIsEmpty(heap->vec);
 }
 
+
 /********************************** Static Functions **********************************/
 
 static void HeapifyUp(const heap_t *heap)

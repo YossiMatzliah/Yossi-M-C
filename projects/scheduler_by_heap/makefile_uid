@@ -1,0 +1,35 @@
+CC=gcc -ansi -pedantic-errors -Wall -Wextra
+INCLUDE_PATH=-I $(CURDIR)/include/
+SRC_PATH=$(CURDIR)/src/
+TEST_PATH=$(CURDIR)/test/
+BIN_PATH=$(CURDIR)/bin/
+
+WSNAME=uid
+#MORESRC=$(SRC_PATH)sorted_list
+#MORESRC2=$(SRC_PATH)dll
+OBJS=$(TEST_PATH)$(WSNAME)_test.o $(SRC_PATH)$(WSNAME).o #$(MORESRC).o $(MORESRC2).o
+SRCS=$(TEST_PATH)$(WSNAME)_test.c $(SRC_PATH)$(WSNAME).c #$(MORESRC).c $(MORESRC2).c
+
+obj_test =  $(WSNAME)_test.o 
+obj_src = $(WSNAME).o
+TARGET = $(WSNAME)
+
+$(TARGET): $(OBJS)  
+	$(CC) $(SRCS) -g -o $(BIN_PATH)$(TARGET) $(INCLUDE_PATH)  
+debug: $(OBJS) 
+	$(CC) -g $(SRCS) -o $(BIN_PATH)$(TARGET) $(INCLUDE_PATH)
+release: $(OBJS)	
+	$(CC) -DNDEBUG $(SRCS) -o $(BIN_PATH)$(TARGET) $(INCLUDE_PATH)	
+	rm $(OBJS)	
+obj: $(OBJS) 
+	$(CC) -g $(SRCS) -o $(BIN_PATH)$(TARGET) $(INCLUDE_PATH)  	 
+.PHONY: run
+run:
+	$(BIN_PATH)./$(TARGET) 
+.PHONY : clean
+clean:
+	rm $(BIN_PATH)$(TARGET) $(OBJS) 
+all: $(TARGET) run clean		
+
+vlg: 
+	valgrind --leak-check=yes --track-origins=yes -s $(BIN_PATH)./$(TARGET)
