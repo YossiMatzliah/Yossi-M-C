@@ -179,4 +179,3 @@ size_t VectorSize(const vector_t *vector)
 	return vector->size;
 }
 
-

@@ -15,9 +15,11 @@
 #define START_CAPACITY (3)
 #define SUCCESS (0)
 #define FAILURE (1)
+#define TRUE 	(1)
+#define FALSE 	(0)
 
 #define GET_DATA(heap, index) (VectorGetAccessToElement(heap->vec, index))
-#define inserted_elem_IDX(heap) (VectorSize(heap->vec) - 1) 
+#define LAST_ELEMENT_IDX(heap) (VectorSize(heap->vec) - 1) 
 #define GET_PARENT_IDX(index) ((size_t)(((index) - 1) / (2)))
 #define GET_LEFT_CHILD_IDX(index) ((2 * (index)) + 1)
 #define GET_RIGHT_CHILD_IDX(index) ((2 * (index)) + 2)
@@ -30,14 +32,13 @@ struct heap
 
 /******************************** Static Functions *********************************/
 
-static void Swap(void **lhd, void **rhd);
 static void HeapifyUp(const heap_t *heap);
-static void HeapifyDown(const heap_t *heap);
-
+static void HeapifyDown(const heap_t *heap, size_t index);
+static void Swap(void **ptr1, void **ptr2);
 
 /********************************** API Functions **********************************/
 
-heap_t * HeapCreate(int(* cmp_func)(const void *, const void *))
+heap_t *HeapCreate(int(* cmp_func)(const void *, const void *))
 {
 	heap_t *new_heap = NULL;
 
@@ -69,7 +70,7 @@ void HeapDestroy(heap_t *heap)
 	free(heap);
 }
 
-int HeapPush(heap_t *heap, void *data)  /* Heapify Up */
+int HeapPush(heap_t *heap, void *data)  
 {
     int status = SUCCESS;
     
@@ -81,25 +82,66 @@ int HeapPush(heap_t *heap, void *data)  /* Heapify Up */
     return status;
 }
 
-void HeapPop(heap_t *heap)  /* First, swap of root and last element, then Heapify Down */
+void HeapPop(heap_t *heap)  
 {
 	size_t root_idx = 0;
     
     assert(NULL != heap);
     
-    Swap(GET_DATA(heap, root_idx), GET_DATA(heap, inserted_elem_IDX(heap)));
+    Swap(GET_DATA(heap, root_idx), GET_DATA(heap, LAST_ELEMENT_IDX(heap)));
     VectorPopBack(heap->vec);
-    HeapifyDown(heap);
+    HeapifyDown(heap, root_idx);
 }
 
 void *HeapRemove(heap_t *heap, int (*is_match_func)(const void *data, const void *param), const void *param)
 {
-    return NULL;
+    size_t i = 0;
+    size_t size = 0;
+    void *removed_data = NULL;
+    
+    assert(NULL != heap);
+    assert(NULL != is_match_func);
+    
+    size = HeapSize(heap);
+    
+    for (i = 0; i < size; ++i)
+    {
+        if (TRUE == is_match_func(GET_DATA(heap, i), param))
+        {
+            Swap(GET_DATA(heap, i), GET_DATA(heap, LAST_ELEMENT_IDX(heap)));
+            removed_data = GET_DATA(heap, LAST_ELEMENT_IDX(heap));
+            VectorPopBack(heap->vec);
+            HeapifyDown(heap, i);
+            break;
+        }
+    }
+    
+    return removed_data;
 }
 
 void *HeapRemoveByKey(heap_t *heap, void *data)
 {
-    return NULL;
+    size_t i = 0;
+    size_t size = 0;
+    void *removed_data = NULL;
+    
+    assert(NULL != heap);
+    
+    size = HeapSize(heap);
+    
+    for (i = 0; i < size; ++i)
+    {
+        if (0 == heap->cmp_func(GET_DATA(heap, i), data))
+        {
+			Swap(GET_DATA(heap, i), GET_DATA(heap, LAST_ELEMENT_IDX(heap)));
+			removed_data = GET_DATA(heap, LAST_ELEMENT_IDX(heap));
+            VectorPopBack(heap->vec);
+            HeapifyDown(heap, i);
+			break;
+        }
+    }
+    
+    return removed_data;
 }
 
 void *HeapPeek(const heap_t *heap)
@@ -130,34 +172,54 @@ int HeapIsEmpty(const heap_t *heap)
 
 static void HeapifyUp(const heap_t *heap)
 {
-	size_t last_index = 0;
+	size_t element_index = 0;
 	size_t parent_index = 0;
-	void *inserted_elem = 0;
-	void *parent_element = 0;
 
 	assert(NULL != heap);
 	
-	last_index = inserted_elem_IDX(heap);
-	parent_index = GET_PARENT_IDX(last_index);
+	element_index = LAST_ELEMENT_IDX(heap);
+	parent_index = GET_PARENT_IDX(element_index);
     
-    while (last_index > 0 && (0 < heap->cmp_func(GET_DATA(heap, last_index), GET_DATA(heap, parent_index))))
+    while (0 < element_index && (0 < heap->cmp_func(GET_DATA(heap, element_index), GET_DATA(heap, parent_index))))
     {
-		inserted_elem = GET_DATA(heap, last_index);
-		parent_element = GET_DATA(heap, parent_index);
+        Swap(GET_DATA(heap, parent_index), GET_DATA(heap, element_index));
 
-        Swap(&inserted_elem, &parent_element);
-
-        last_index = GET_PARENT_IDX(last_index);
-	    parent_index = GET_PARENT_IDX(last_index);
+        element_index = GET_PARENT_IDX(element_index);
+	    parent_index = GET_PARENT_IDX(element_index);
     }
-    /*
-    for (last_index = inserted_elem_IDX(heap); last_index >= 0; last_index = GET_PARENT_IDX(last_index))
+}
+
+static void HeapifyDown(const heap_t *heap, size_t index)
+{
+    size_t go_down_index = index;
+    size_t index_to_swap = go_down_index;
+    size_t right_child_index = 0;
+    size_t left_child_index = 0;
+    size_t size = 0;
+    
+    assert(NULL != heap);
+    
+    size = VectorSize(heap->vec);
+    
+    while (go_down_index < size)
     {
-        parent_index = GET_PARENT_IDX(last_index);
+        right_child_index = GET_RIGHT_CHILD_IDX(go_down_index);
+        left_child_index = GET_LEFT_CHILD_IDX(go_down_index);
         
-        if (0 < heap->cmp_func(GET_DATA(heap, last_index), GET_DATA(heap, parent_index)))
+        if (left_child_index < size && 0 < heap->cmp_func(GET_DATA(heap, left_child_index), GET_DATA(heap, index_to_swap)))
         {
-            Swap(GET_DATA(heap, last_index), GET_DATA(heap, parent_index));
+            index_to_swap = left_child_index;
+        }
+        
+        if (right_child_index < size && 0 < heap->cmp_func(GET_DATA(heap, right_child_index), GET_DATA(heap, index_to_swap)))
+        {
+            index_to_swap = right_child_index;
+        }
+        
+        if (index_to_swap != go_down_index)
+        {
+            Swap(GET_DATA(heap, index_to_swap), GET_DATA(heap, go_down_index));
+            go_down_index = index_to_swap;
         }
         
         else
@@ -165,22 +227,17 @@ static void HeapifyUp(const heap_t *heap)
             break;
         }
     }
-	*/
 }
 
-static void HeapifyDown(const heap_t *heap)
+static void Swap(void **ptr1, void **ptr2)
 {
-    assert(NULL != heap);
-    
-	return;
+    void *temp = NULL;
+
+    assert(NULL != ptr1);
+    assert(NULL != ptr2);
+
+    temp = *ptr1;
+    *ptr1 = *ptr2;
+    *ptr2 = temp;
 }
-
-static void Swap(void **lhd, void **rhd) 
-{
-    void *temp = *lhd;
-    *lhd = *rhd;
-    *rhd = temp;
-}
-
-
 

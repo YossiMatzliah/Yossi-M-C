@@ -86,13 +86,14 @@ void HeapPop(heap_t *heap);
 *    Removes the element from the heap and returns its value.
 *
 * @param:
-*    heap - Pointer to the heap.
-*    If the pointer is invalid - the behavior is undefined.
-*    is_match_func - boolean function to match by the param.
-*    param - pointer to the parameter for comparison.
+*   heap - Pointer to the heap.
+*   If the pointer is invalid - the behavior is undefined.
+*   is_match_func - boolean function to match by the param.
+*   param - pointer to the parameter for comparison.
 * 
 * @return:
-*    Returns a pointer to the data of the removed element,
+*   Returns a pointer to the data of the removed element
+*   If data is not found returns NULL.
 *
 * complexity
 *    Time: O(n)
@@ -111,9 +112,10 @@ void *HeapRemove(heap_t *heap, int (*is_match_func)(const void *data, const void
 * 
 * @return:
 *	Returns a pointer to the data of the removed element,
+*   If data is not found returns NULL.
 *
 * complexity
-*	Time: O(n)
+*	Time: O(n)  advanced: O(log n)
 *	Space O(1)
 */													
 void *HeapRemoveByKey(heap_t *heap, void *data);
@@ -130,7 +132,7 @@ void *HeapRemoveByKey(heap_t *heap, void *data);
 *	A pointer to the element stored in first index. 
 *
 * complexity
-*	Time: O(1).
+*	Time: O(1)
 *	Space O(1)
 */
 void *HeapPeek(const heap_t *heap);
