@@ -260,11 +260,11 @@ static void TestHeapRemoveByKey()
 	return_data = HeapRemoveByKey(test_heap, (void *)struct_2_ptr);
 	--heap_size;
 	
-	PRINT_TEST((*(test_struct_t **)return_data)->key == struct_2.key);
+	PRINT_TEST(((test_struct_t *)return_data)->key == struct_2.key);
 	PRINT_TEST(heap_size == HeapSize(test_heap));
 	PrintStructHeapTree(test_heap);
 	return_data = HeapRemoveByKey(test_heap, (void *)struct_3_ptr);
-	PRINT_TEST((*(test_struct_t **)return_data)->key == struct_3.key);
+	PRINT_TEST(((test_struct_t *)return_data)->key == struct_3.key);
 	PrintStructHeapTree(test_heap);
 	return_data = HeapRemoveByKey(test_heap, (void *)struct_not_in_ptr);
 	PRINT_TEST(NULL == return_data);
@@ -283,7 +283,7 @@ static void TestHeapRemoveByKey()
 
 int CompareFunc(const void *data1, const void *data2)
 {
-	return (int)(*(size_t *)data1 - *(size_t *)data2);  
+	return (*(size_t *)data1 - *(size_t *)data2);  
 }
 
 int IsMatch(const void *data, const void *param)

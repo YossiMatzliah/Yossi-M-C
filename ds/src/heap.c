@@ -6,23 +6,24 @@
 
 #include <stdio.h>	/* perror */
 #include <assert.h>	/* assert */
-#include <errno.h>	/* errno */
 #include <stdlib.h>	/* malloc */
 
 #include "heap.h"
 #include "dynamic_vector.h"
 
-#define START_CAPACITY (3)
 #define SUCCESS (0)
 #define FAILURE (1)
 #define TRUE 	(1)
 #define FALSE 	(0)
 
+#define START_CAPACITY (3)
+#define ROOT_IDX (0)
 #define GET_DATA(heap, index) (VectorGetAccessToElement(heap->vec, index))
 #define LAST_ELEMENT_IDX(heap) (VectorSize(heap->vec) - 1) 
 #define GET_PARENT_IDX(index) ((size_t)(((index) - 1) / (2)))
 #define GET_LEFT_CHILD_IDX(index) ((2 * (index)) + 1)
 #define GET_RIGHT_CHILD_IDX(index) ((2 * (index)) + 2)
+#define HAS_LEFT_CHILD(index) (GET_LEFT_CHILD_IDX(index) < VectorSize(heap->vec))
 
 struct heap 
 {
@@ -32,8 +33,11 @@ struct heap
 
 /******************************** Static Functions *********************************/
 
-static void HeapifyUp(const heap_t *heap);
+static void HeapifyUp(const heap_t *heap, size_t index);
 static void HeapifyDown(const heap_t *heap, size_t index);
+static void *RemoveByIndex(heap_t *heap, size_t index);
+static size_t GetBiggerElementIndex(const heap_t *heap, size_t index, size_t size);
+static int GetCompareResult(const heap_t *heap, size_t index_1, size_t index_2);
 static void Swap(void **ptr1, void **ptr2);
 
 /********************************** API Functions **********************************/
@@ -66,6 +70,8 @@ heap_t *HeapCreate(int(* cmp_func)(const void *, const void *))
 
 void HeapDestroy(heap_t *heap)
 {
+	assert(NULL != heap);
+	
 	VectorDestroy(heap->vec);
 	free(heap);
 }
@@ -77,20 +83,18 @@ int HeapPush(heap_t *heap, void *data)
     assert(NULL != heap);
     
     status = VectorPushBack(heap->vec, (void *)&data);
-    HeapifyUp(heap);
+    HeapifyUp(heap, LAST_ELEMENT_IDX(heap));
     
     return status;
 }
 
 void HeapPop(heap_t *heap)  
 {
-	size_t root_idx = 0;
-    
     assert(NULL != heap);
     
-    Swap(GET_DATA(heap, root_idx), GET_DATA(heap, LAST_ELEMENT_IDX(heap)));
+    Swap(GET_DATA(heap, ROOT_IDX), GET_DATA(heap, LAST_ELEMENT_IDX(heap)));
     VectorPopBack(heap->vec);
-    HeapifyDown(heap, root_idx);
+    HeapifyDown(heap, ROOT_IDX);
 }
 
 void *HeapRemove(heap_t *heap, int (*is_match_func)(const void *data, const void *param), const void *param)
@@ -108,10 +112,7 @@ void *HeapRemove(heap_t *heap, int (*is_match_func)(const void *data, const void
     {
         if (TRUE == is_match_func(*(void **)GET_DATA(heap, i), param))
         {
-            Swap(GET_DATA(heap, i), GET_DATA(heap, LAST_ELEMENT_IDX(heap)));
-            removed_data = *(void **)GET_DATA(heap, LAST_ELEMENT_IDX(heap));
-            VectorPopBack(heap->vec);
-            HeapifyDown(heap, i);
+            removed_data = RemoveByIndex(heap, i);
             break;
         }
     }
@@ -133,11 +134,8 @@ void *HeapRemoveByKey(heap_t *heap, void *data)
     {
         if (0 == heap->cmp_func(*(void **)GET_DATA(heap, i), data))
         {
-			Swap(GET_DATA(heap, i), GET_DATA(heap, LAST_ELEMENT_IDX(heap)));
-			removed_data = GET_DATA(heap, LAST_ELEMENT_IDX(heap));
-            VectorPopBack(heap->vec);
-            HeapifyDown(heap, i);
-			break;
+            removed_data = RemoveByIndex(heap, i);
+            break;
         }
     }
     
@@ -146,11 +144,9 @@ void *HeapRemoveByKey(heap_t *heap, void *data)
 
 void *HeapPeek(const heap_t *heap)
 {
-	size_t peek_idx = 0;
-
 	assert(NULL != heap);
 
-    return *(void **)VectorGetAccessToElement(heap->vec, peek_idx);
+    return *(void **)VectorGetAccessToElement(heap->vec, ROOT_IDX);
 }
 
 size_t HeapSize(const heap_t *heap)
@@ -169,14 +165,13 @@ int HeapIsEmpty(const heap_t *heap)
 
 /********************************** Static Functions **********************************/
 
-static void HeapifyUp(const heap_t *heap)
+static void HeapifyUp(const heap_t *heap, size_t index)
 {
-	size_t element_index = 0;
+	size_t element_index = index;
 	size_t parent_index = 0;
 
 	assert(NULL != heap);
 	
-	element_index = LAST_ELEMENT_IDX(heap);
 	parent_index = GET_PARENT_IDX(element_index);
     
     while (0 < element_index && (0 < heap->cmp_func(*(void **)GET_DATA(heap, element_index), *(void **)GET_DATA(heap, parent_index))))
@@ -190,35 +185,21 @@ static void HeapifyUp(const heap_t *heap)
 
 static void HeapifyDown(const heap_t *heap, size_t index)
 {
-    size_t go_down_index = index;
-    size_t index_to_swap = go_down_index;
-    size_t right_child_index = 0;
-    size_t left_child_index = 0;
+    size_t bigger_element_index = 0;
     size_t size = 0;
     
     assert(NULL != heap);
     
     size = VectorSize(heap->vec);
     
-    while (go_down_index < size)
+    while (HAS_LEFT_CHILD(index))
     {
-        right_child_index = GET_RIGHT_CHILD_IDX(go_down_index);
-        left_child_index = GET_LEFT_CHILD_IDX(go_down_index);
+        bigger_element_index = GetBiggerElementIndex(heap, index, size);
         
-        if (left_child_index < size && 0 < heap->cmp_func(*(void **)GET_DATA(heap, left_child_index), *(void **)GET_DATA(heap, index_to_swap)))
+        if (bigger_element_index != index)
         {
-            index_to_swap = left_child_index;
-        }
-        
-        if (right_child_index < size && 0 < heap->cmp_func(*(void **)GET_DATA(heap, right_child_index), *(void **)GET_DATA(heap, index_to_swap)))
-        {
-            index_to_swap = right_child_index;
-        }
-        
-        if (index_to_swap != go_down_index)
-        {
-            Swap(GET_DATA(heap, index_to_swap), GET_DATA(heap, go_down_index));
-            go_down_index = index_to_swap;
+            Swap(GET_DATA(heap, bigger_element_index), GET_DATA(heap, index));
+            index = bigger_element_index;
         }
         
         else
@@ -226,6 +207,35 @@ static void HeapifyDown(const heap_t *heap, size_t index)
             break;
         }
     }
+}
+
+static size_t GetBiggerElementIndex(const heap_t *heap, size_t index, size_t size)
+{
+    size_t bigger_element_index = index;
+    size_t right_child_index = 0;
+    size_t left_child_index = 0;
+
+    assert(NULL != heap);
+
+    right_child_index = GET_RIGHT_CHILD_IDX(index);
+    left_child_index = GET_LEFT_CHILD_IDX(index);
+
+    if (0 < GetCompareResult(heap, left_child_index, bigger_element_index))
+    {
+        bigger_element_index = left_child_index;
+    }
+    
+    if (right_child_index < size && 0 < GetCompareResult(heap, right_child_index, bigger_element_index))
+    {
+        bigger_element_index = right_child_index;
+    }
+
+    return bigger_element_index;
+}
+
+static int GetCompareResult(const heap_t *heap, size_t index_1, size_t index_2)
+{
+    return (heap->cmp_func(*(void **)GET_DATA(heap, index_1), *(void **)GET_DATA(heap, index_2)));
 }
 
 static void Swap(void **ptr1, void **ptr2)
@@ -238,5 +248,20 @@ static void Swap(void **ptr1, void **ptr2)
     temp = *ptr1;
     *ptr1 = *ptr2;
     *ptr2 = temp;
+}
+
+static void *RemoveByIndex(heap_t *heap, size_t index)
+{
+    void *return_data = NULL;
+    
+    assert(NULL != heap);
+
+    Swap(GET_DATA(heap, index), GET_DATA(heap, LAST_ELEMENT_IDX(heap)));
+    return_data = *(void **)GET_DATA(heap, LAST_ELEMENT_IDX(heap));
+    VectorPopBack(heap->vec);
+    HeapifyDown(heap, index);
+    HeapifyUp(heap, index);
+   
+    return return_data;
 }
 
