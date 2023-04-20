@@ -1,14 +1,13 @@
 /************************************
 *	Developer :	Yossi Matzliah      *
-*	Reviewer  :	????				*
-*	Date      : ?/04/2023			*
+*	Reviewer  :	Avri				*
+*	Date      : 19/04/2023			*
 ************************************/
 
 #include <stdio.h>	
 
 #include "dynamic_vector.h"
 #include "heap.h"
-
 
 #define U_LINE 	"\033[1m\033[4m"
 #define RED   	"\033[1m\033[41m\x1B[30m"
@@ -37,8 +36,6 @@ typedef struct test_struct
 } test_struct_t;
 
 /*****************************************************************/
-
-int main();
 
 static void TestHeapCreateDestroy();
 static void TestHeapPush();
