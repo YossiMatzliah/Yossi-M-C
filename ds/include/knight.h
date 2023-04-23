@@ -7,8 +7,8 @@
 #ifndef __ILRD__OL139_40__KNIGHT_TOUR_H__
 #define __ILRD__OL139_40__KNIGHT_TOUR_H__
 
-#define SIZE_ROW (8)
-#define SIZE_COL (8)
+#define ROWS (5)
+#define COLUMNS (5)
 
 /*
 * KnightTour description:
@@ -18,8 +18,8 @@
 *   matrix - starting board.
 *	row - starting point, row location.
 *	col - starting point, col location.
-*	size_row - row size.
-*	size_col - col size.
+*	ROWS - row size.
+*	COLUMNS - col size.
 * 
 * @return:
 *   Returns - if there is a valid soultion retuen 0, else return non zero.
@@ -28,7 +28,7 @@
 *	Time: O(8^n).
 *	Space O(1)
 */
-int KnightTour(int matrix[SIZE_ROW][SIZE_COL],int row, int col);
+int KnightTour(int matrix[ROWS][COLUMNS], int row, int col);
 
 /*
 * PrintBoard description:
@@ -36,17 +36,17 @@ int KnightTour(int matrix[SIZE_ROW][SIZE_COL],int row, int col);
 *
 * @param:
 *	solution - Pointer to the heap.
-*	size_row - row size.
-*	size_col - col size.
+*	ROWS - row size.
+*	COLUMNS - col size.
 * 
 * @return:
 *    Returns - void.
 *
 * complexity
-*	Time: O(size_row * size_col).
+*	Time: O(ROWS * COLUMNS).
 *	Space O(1)
 */
-void PrintBoard(int solution[SIZE_ROW][SIZE_COL]);
+void PrintBoard(int solution[ROWS][COLUMNS]);
 
 /*
 
@@ -57,16 +57,16 @@ void PrintBoard(int solution[SIZE_ROW][SIZE_COL]);
 *
 * @param:
 *	solution - Pointer to the heap.
-*	size_row - row size.
-*	size_col - col size.
+*	ROWS - row size.
+*	COLUMNS - col size.
 * 
 * @return:
 *    Returns - void.
 *
 * complexity
-*	Time: O(size_row * size_col).
+*	Time: O(ROWS * COLUMNS).
 *	Space O(1)
 */
-/*void PooingDog(int solution[SIZE_ROW][SIZE_COL]);*/
+/*void PoopingDog(int solution[ROWS][COLUMNS]);*/
 
 #endif

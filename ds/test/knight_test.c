@@ -27,7 +27,7 @@
 /*****************************************************************/
 
 
-
+static void  TestKnightTour();
 
 
 
@@ -35,7 +35,7 @@
 
 int main()
 {
-	
+	TestKnightTour();
 
 	return 0;
 }
@@ -44,4 +44,9 @@ int main()
 
 /**************************************************************/
 
-
+static void TestKnightTour()
+{
+	int board[ROWS][COLUMNS] = {{0}};
+	
+	PRINT_TEST(SUCCESS == KnightTour(board, 0, 2));
+}
