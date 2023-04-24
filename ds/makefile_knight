@@ -8,9 +8,9 @@ BIN_PATH=$(CURDIR)/bin/
 
 WSNAME=knight
 MORESRC=$(SRC_PATH)dynamic_vector
-#MORESRC2=$(SRC_PATH)dll
-OBJS=$(TEST_PATH)$(WSNAME)_test.o $(SRC_PATH)$(WSNAME).o $(MORESRC).o #$(MORESRC2).o
-SRCS=$(TEST_PATH)$(WSNAME)_test.c $(SRC_PATH)$(WSNAME).c $(MORESRC).c #$(MORESRC2).c
+MORESRC2=$(SRC_PATH)heap
+OBJS=$(TEST_PATH)$(WSNAME)_test.o $(SRC_PATH)$(WSNAME).o $(MORESRC).o $(MORESRC2).o
+SRCS=$(TEST_PATH)$(WSNAME)_test.c $(SRC_PATH)$(WSNAME).c $(MORESRC).c $(MORESRC2).c
 
 obj_test = $(WSNAME)_test.o
 obj_src = $(WSNAME).o

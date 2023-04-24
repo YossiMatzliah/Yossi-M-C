@@ -48,5 +48,8 @@ static void TestKnightTour()
 {
 	int board[ROWS][COLUMNS] = {{0}};
 	
-	PRINT_TEST(SUCCESS == KnightTour(board, 0, 2));
+	PRINT_TEST(SUCCESS == KnightTour(board, 0, 0));
+	/*PRINT_TEST(SUCCESS == KnightTour(board, 3, 7));*/
+	PRINT_TEST(SUCCESS == KnightTour(board, 2, 2));
+	/*PRINT_TEST(FAILURE == KnightTour(board, 3, 2));*/ /* board 5X5 */
 }
