@@ -1,12 +1,13 @@
 /************************************
 *	Developer :	Yossi Matzliah      *
-*	Reviewer  :	????				*
-*	Date      : 24/04/2023			*
+*	Reviewer  :	Tomer				*
+*	Date      : 25/04/2023			*
 ************************************/
 
 #include <stdio.h>	/* perror, printf */
 #include <assert.h>	/* assert */
 #include <stdlib.h>	/* abs */
+#include <unistd.h> /* alarm */
 
 #include "knight.h"
 #include "dynamic_vector.h"
@@ -16,22 +17,24 @@
 #define BLACK_ON_WHITE   	"\033[1m\033[30m\x1B[47m"
 #define RESET 	            "\033[0m"
 
+#define ALARM_TIME (5 * 60)
+
 typedef enum color 
 {
-    BLACK,
-    WHITE
+    BLACK = 0,
+    WHITE = 1
 } color_t;
 
 typedef enum status 
 {
-    SUCCESS,
-    FAILURE
+    SUCCESS = 0,
+    FAILURE = 1
 } status_t;
 
 typedef enum boolean 
 {
-    FALSE,
-    TRUE
+    FALSE = 0,
+    TRUE = 1
 } boolean_t;
 
 typedef struct point
@@ -46,7 +49,7 @@ typedef struct point
 static void InitMatrixWithZero(int matrix[ROWS][COLUMNS]);
 static void InitMovesLUT(int matrix[ROWS][COLUMNS], vector_t *moves_lut[ROWS][COLUMNS], point_t *point);
 static void InitHeapLUT(heap_t *heap_lut[ROWS][COLUMNS]);
-static status_t RecKnight(int row, int col, int matrix[ROWS][COLUMNS], vector_t *moves_lut[ROWS][COLUMNS], heap_t *heap_lut[ROWS][COLUMNS], int moves_count);
+static status_t RecKnight(int row, int col, int matrix[ROWS][COLUMNS], vector_t *moves_lut[ROWS][COLUMNS], heap_t *heap_lut[ROWS][COLUMNS]);
 static boolean_t IsValidMove(int row, int col, int matrix[ROWS][COLUMNS]);
 static void InitValidMoves(int row, int col, int matrix[ROWS][COLUMNS], vector_t *moves_lut[ROWS][COLUMNS], point_t *point);
 static int CountValidMoves(int row, int col, int matrix[ROWS][COLUMNS]);
@@ -62,15 +65,15 @@ int KnightTour(int matrix[ROWS][COLUMNS], int row, int col)
     vector_t *moves_lut[ROWS][COLUMNS] = {{0}};
     heap_t *heap_lut[ROWS][COLUMNS] = {{0}};
     point_t point = {0, 0, 0};
-    int moves_count = 1;
 
     InitMatrixWithZero(matrix);
     InitMovesLUT(matrix, moves_lut, &point);
     InitHeapLUT(heap_lut);
 
-    matrix[row][col] = moves_count;
-    status = RecKnight(row, col, matrix, moves_lut, heap_lut, moves_count + 1);
-    PrintBoard(matrix);
+    alarm(ALARM_TIME);
+
+    matrix[row][col] = 1;
+    status = RecKnight(row, col, matrix, moves_lut, heap_lut);
 
     DestroyVectorLUT(moves_lut);
     DestroyHeapLUT(heap_lut);
@@ -193,14 +196,14 @@ static void InitHeapLUT(heap_t *heap_lut[ROWS][COLUMNS])
     }
 }
 
-static status_t RecKnight(int row, int col, int matrix[ROWS][COLUMNS], vector_t *moves_lut[ROWS][COLUMNS], heap_t *heap_lut[ROWS][COLUMNS], int moves_count)
+static status_t RecKnight(int row, int col, int matrix[ROWS][COLUMNS], vector_t *moves_lut[ROWS][COLUMNS], heap_t *heap_lut[ROWS][COLUMNS])
 {
     size_t i = 0;
     int next_row = 0;
     int next_col = 0;
     point_t *temp_point = {0};
 
-    if (moves_count == ROWS * COLUMNS + 1)
+    if (matrix[row][col] == ROWS * COLUMNS)
     {
         return SUCCESS;
     }
@@ -224,17 +227,14 @@ static status_t RecKnight(int row, int col, int matrix[ROWS][COLUMNS], vector_t 
 
         if (IsValidMove(next_row, next_col, matrix))
         {
-            matrix[next_row][next_col] = moves_count;
+            matrix[next_row][next_col] = matrix[row][col] + 1;
             
-            if (SUCCESS == RecKnight(next_row, next_col, matrix, moves_lut, heap_lut, moves_count + 1))
+            if (SUCCESS == RecKnight(next_row, next_col, matrix, moves_lut, heap_lut))
             {
                 return SUCCESS;
             }
-             
-            else
-            {
-                matrix[next_row][next_col] = 0;
-            }
+            
+            matrix[next_row][next_col] = 0;
         }
     }
     

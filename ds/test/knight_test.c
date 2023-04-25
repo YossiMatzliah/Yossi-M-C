@@ -1,7 +1,7 @@
 /************************************
 *	Developer :	Yossi Matzliah      *
-*	Reviewer  :	????				*
-*	Date      : ?/04/2023			*
+*	Reviewer  :	Tomer				*
+*	Date      : 25/04/2023			*
 ************************************/
 
 #include <stdio.h>	
@@ -26,10 +26,7 @@
 
 /*****************************************************************/
 
-
 static void  TestKnightTour();
-
-
 
 /*****************************************************************/
 
@@ -40,16 +37,27 @@ int main()
 	return 0;
 }
 
-
-
 /**************************************************************/
 
 static void TestKnightTour()
 {
 	int board[ROWS][COLUMNS] = {{0}};
 	
+	printf(U_LINE"\nTest Knight's Tour ( + Print Board):\n\n"RESET);
+
 	PRINT_TEST(SUCCESS == KnightTour(board, 0, 0));
-	/*PRINT_TEST(SUCCESS == KnightTour(board, 3, 7));*/
+	PrintBoard(board);
+
+	/*PRINT_TEST(SUCCESS == KnightTour(board, 3, 7));*/	/* board 8X8 */
+	/*PrintBoard(board);*/
+
 	PRINT_TEST(SUCCESS == KnightTour(board, 2, 2));
-	/*PRINT_TEST(FAILURE == KnightTour(board, 3, 2));*/ /* board 5X5 */
+	PrintBoard(board);
+
+	PRINT_TEST(FAILURE == KnightTour(board, 3, 2)); /* board 5X5 */
+	PRINT_TEST(SUCCESS == KnightTour(board, 1, 3));
+	PrintBoard(board);
+
+	PRINT_TEST(SUCCESS == KnightTour(board, 0, 4));
+	PrintBoard(board);
 }

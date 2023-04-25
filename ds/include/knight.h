@@ -1,7 +1,7 @@
 /************************************
 *	Developer :	Yossi Matzliah      *
-*	Reviewer  :	????				*
-*	Date      : ?/04/2023			*
+*	Reviewer  :	Tomer				*
+*	Date      : 25/04/2023			*
 ************************************/
 
 #ifndef __ILRD__OL139_40__KNIGHT_TOUR_H__
