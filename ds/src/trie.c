@@ -13,17 +13,6 @@
 
 #define IS_FULL(left, right) (NULL != left && NULL != right && left->is_full == TRUE && right->is_full == TRUE)
 
-typedef enum trie_status
-{
-    SUCCESS = 0,
-    FAILURE = 1,
-    FULL_TREE = 2,
-    DOUBLE_FREE = 3,
-    DS_FAILURE = 4,
-    SEARCH_BIGGER = 5,
-    FIND_SMALLER = 6
-} trie_status_t;
-
 typedef enum boolean 
 {
     FALSE = 0,
@@ -41,14 +30,14 @@ struct trie_node
 {
 	trie_node_t *children[NUM_OF_CHILDREN];
 	int is_full;
-};
+} ;
 
 struct trie 
 {
 	trie_node_t *root;
     int counter;
 	int height;
-};
+} ;
 
 /**********************************************************************************
 *								Static Functions								  *
@@ -57,7 +46,7 @@ struct trie
 static void TrieDestroyRec(trie_node_t *node);
 static int TrieInsertRec(trie_node_t *curr_node, unsigned int *result, int height);
 static trie_status_t TrieFreeRec(trie_node_t *curr_node, unsigned int requested, int height);
-static size_t TrieCountFull(trie_node_t *node, int height, size_t counter);
+/*static size_t TrieCountFull(trie_node_t *node, int height, size_t counter);*/
 static trie_node_t *TrieCreateNode();
 
 /**********************************************************************************
@@ -143,7 +132,7 @@ int TrieIsEmpty(const trie_t *trie)
 
 /**********************************************************************************
 *								Static Functions								  *
-***********************************************************************************/
+**********************************************************************************/
 
 static void TrieDestroyRec(trie_node_t *node)
 {
@@ -229,7 +218,7 @@ static int TrieInsertRec(trie_node_t *curr_node, unsigned int *result, int heigh
             }
             
             status = TrieInsertRec(curr_node->children[side_bit], result, height - 1);
-            if(status == FULL_TREE)
+            if (status == FULL_TREE)
             {
                 return FIND_SMALLER;
             }

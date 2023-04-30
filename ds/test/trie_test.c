@@ -56,21 +56,23 @@ static void TestTrieCreateDestroy()
 void TestTrieInsert()
 {
 	trie_t *test_trie = NULL;
+	size_t height = 4;
+	unsigned int result[4] = {0};
 	unsigned int ip_1 = 2;
 	unsigned int ip_2 = 3;
 	unsigned int ip_3 = 8;
-	size_t height = 4;
 
 	printf(U_LINE"\nTest Trie Insert:\n\n"RESET);
 
 	test_trie = TrieCreate(height);
 	
-    TrieInsert(test_trie, ip_1);
+    TrieInsert(test_trie, ip_1, result);
 	PRINT_TEST(pow(2, height) - 1 == TrieCountFree(test_trie));
-    TrieInsert(test_trie, ip_2);
+    TrieInsert(test_trie, ip_2, result);
 	PRINT_TEST(pow(2, height) - 2 == TrieCountFree(test_trie));
-	TrieInsert(test_trie, ip_3);
+	TrieInsert(test_trie, ip_3, result);
 	PRINT_TEST(pow(2, height) - 3 == TrieCountFree(test_trie));
+	
 	
 	TrieDestroy(test_trie);
 }
