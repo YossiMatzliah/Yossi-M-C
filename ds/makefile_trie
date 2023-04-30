@@ -1,0 +1,59 @@
+CC=gcc -ansi -pedantic-errors -Wall -Wextra $(INCLUDE_PATH)
+GC=gcc -ansi -pedantic-errors -Wall -Wextra -DNDEBUG -O3 $(INCLUDE_PATH) #optimizations
+INCLUDE_PATH=-I./include/
+INCLUD_PATH=$(CURDIR)/include/
+SRC_PATH=$(CURDIR)/src/
+TEST_PATH=$(CURDIR)/test/
+BIN_PATH=$(CURDIR)/bin/
+
+WSNAME=trie
+#MORESRC=$(SRC_PATH)dynamic_vector
+#MORESRC2=$(SRC_PATH)heap
+OBJS=$(TEST_PATH)$(WSNAME)_test.o $(SRC_PATH)$(WSNAME).o #$(MORESRC).o $(MORESRC2).o
+SRCS=$(TEST_PATH)$(WSNAME)_test.c $(SRC_PATH)$(WSNAME).c #$(MORESRC).c $(MORESRC2).c
+
+obj_test = $(WSNAME)_test.o
+obj_src = $(WSNAME).o
+TARGET = $(WSNAME)
+
+$(TARGET): $(OBJS)  
+	$(CC) -g $(SRCS) -lm -o $(BIN_PATH)$(TARGET)  
+	rm $(OBJS)
+debug: $(OBJS) 
+	$(CC) -g $(SRCS) -o $(BIN_PATH)$(TARGET) 
+release: $(OBJS)	
+	$(GC) $(SRCS) -o $(BIN_PATH)$(TARGET) 	
+	rm $(OBJS)	
+obj: $(OBJS) 
+	$(CC) -g $(SRCS) -o $(BIN_PATH)$(TARGET)   	 
+.PHONY: run
+run:
+	$(BIN_PATH)./$(TARGET) 
+.PHONY : clean
+clean:
+	rm $(BIN_PATH)$(TARGET) $(OBJS) 
+all: $(TARGET) run clean		
+
+vlg: 
+	valgrind --leak-check=yes --track-origins=yes -s $(BIN_PATH)./$(TARGET)
+
+edit:
+	gedit $(SRCS) $(INCLUD_PATH)$(WSNAME).h &
+	
+zip:
+	mkdir -p $(TARGET)_Yossi_review
+	mkdir -p $(TARGET)_Yossi_review/test
+	mkdir -p $(TARGET)_Yossi_review/src
+	mkdir -p $(TARGET)_Yossi_review/include
+	mkdir -p $(TARGET)_Yossi_review/bin
+	
+	cp test/$(TARGET)_test.c $(TARGET)_Yossi_review/test/
+	cp src/$(TARGET).c $(TARGET)_Yossi_review/src/
+	#cp src/dynamic_vector.c $(TARGET)_Yossi_review/src/
+	cp include/$(TARGET).h $(TARGET)_Yossi_review/include/
+	#cp include/dynamic_vector.h $(TARGET)_Yossi_review/include/
+	cp makefile_$(TARGET) $(TARGET)_Yossi_review/
+
+	tar -czvf $(TARGET)_Yossi_review.tar.gz $(TARGET)_Yossi_review
+
+	rm -r $(TARGET)_Yossi_review	

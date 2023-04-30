@@ -56,7 +56,7 @@ heap_t *HeapCreate(int(* cmp_func)(const void *, const void *))
     }
 
 	new_heap->vec = VectorCreate(START_CAPACITY, sizeof(void *));
-	if (NULL == new_heap)
+	if (NULL == new_heap->vec)
     {
         perror("Allocation Error");
 		free(new_heap);

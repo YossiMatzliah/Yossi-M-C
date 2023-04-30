@@ -7,8 +7,8 @@
 #ifndef __ILRD__OL139_40__KNIGHT_TOUR_H__
 #define __ILRD__OL139_40__KNIGHT_TOUR_H__
 
-#define ROWS (5)
-#define COLUMNS (5)
+#define ROWS (8)
+#define COLUMNS (8)
 
 /*
 * KnightTour description:
