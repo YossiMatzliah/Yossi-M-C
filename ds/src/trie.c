@@ -1,17 +1,27 @@
 /************************************
- *	Developer :	Yossi Matzliah      *
- *	Reviewer  :					*
- *	Date      : /04/2023			*
- ************************************/
+*	Developer :	Yossi Matzliah      *
+*	Reviewer  :	Yotam S				*
+*	Date      : 01/05/2023			*
+************************************/
 
 #include <stdio.h>  /* perror */
 #include <assert.h> /* assert */
 #include <stdlib.h> /* malloc */
-#include <math.h>   /* pow */
+#include <limits.h> /* UINT_MAX */
 
 #include "trie.h"
 
 #define IS_FULL(left, right) (NULL != left && NULL != right && left->is_full == TRUE && right->is_full == TRUE)
+
+typedef enum trie_status
+{
+    SUCCESS = 0,
+    FAILURE = 1,
+    FULL_TREE = 2,
+    DOUBLE_FREE = 3,
+    DS_FAILURE = 4,
+    SEARCH_BIGGER = 5
+} trie_status_t;
 
 typedef enum boolean 
 {
@@ -39,19 +49,16 @@ struct trie
 	int height;
 } ;
 
-/**********************************************************************************
-*								Static Functions								  *
-***********************************************************************************/
+/****************************** Static Functions *********************************/
 
 static void TrieDestroyRec(trie_node_t *node);
 static int TrieInsertRec(trie_node_t *curr_node, unsigned int *result, int height);
 static trie_status_t TrieFreeRec(trie_node_t *curr_node, unsigned int requested, int height);
-/*static size_t TrieCountFull(trie_node_t *node, int height, size_t counter);*/
 static trie_node_t *TrieCreateNode();
+static child_pos_t UpdateUintPtrToNext(unsigned int *result, int height);
+static boolean_t VerifyNodeExistence(trie_node_t *node, int side_bit, unsigned int *result);
 
-/**********************************************************************************
-*								API Functions									  *
-***********************************************************************************/
+/******************************* API Functions ***********************************/
 
 trie_t *TrieCreate(unsigned int height)
 {
@@ -84,55 +91,52 @@ int TrieInsert(trie_t *trie, unsigned int requested, unsigned int *result)
     
     if (trie->root->is_full)
     {
-        return FULL_TREE;  
+        *result = UINT_MAX;
+        return FULL_TREE;
     }
     
     status = TrieInsertRec(trie->root, result, trie->height - 1);
-
-    if (FIND_SMALLER == status)
+    
+    if (SEARCH_BIGGER == status)    /*not found any bigger search from scratch*/
     {
-        printf("FIND_SMALLER\n");
         *result = 0;
         status = TrieInsertRec(trie->root, result, trie->height - 1);
     }
 
-    trie->root->is_full = IS_FULL(trie->root->children[LEFT], trie->root->children[RIGHT]);
-    printf("trie->root->is_full = %d\n", trie->root->is_full);
-
-    trie->counter += (SUCCESS == status) ? 1 : 0; 
+    trie->counter += (SUCCESS == status) ? 1 : 0;
+    *result = (SUCCESS != status) ? UINT_MAX : *result;
 
     return status;
 }
 
-int TrieFree(const trie_t *trie, unsigned int requested)
+int TrieFree(trie_t *trie, unsigned int requested)
 {
+    int status = 0;
+
 	assert(NULL != trie);
 
-    return (int)TrieFreeRec(trie->root, requested, trie->height - 1);
+    status = TrieFreeRec(trie->root, requested, trie->height - 1);
+
+    trie->counter -= (SUCCESS == status) ? 1 : 0;
+
+    return status;
 }
 
 size_t TrieCountFree(const trie_t *trie)
 {
-    /*size_t counter = 0;
-    size_t full_nodes = 0;*/
-    
 	assert(NULL != trie);
 
-	/*full_nodes = TrieCountFull(trie->root, trie->height - 1, counter);*/
-
-    return (pow(2, trie->height) - trie->counter);
+    return ((1 << trie->height) - trie->counter);
 }
 
 int TrieIsEmpty(const trie_t *trie)
 {
 	assert(NULL != trie);
 
-    return (NULL == trie->root->children[LEFT] && NULL == trie->root->children[RIGHT]);
+    return (0 == trie->counter);
 }
 
-/**********************************************************************************
-*								Static Functions								  *
-**********************************************************************************/
+/****************************** Static Functions *********************************/
 
 static void TrieDestroyRec(trie_node_t *node)
 {
@@ -157,7 +161,7 @@ static int TrieInsertRec(trie_node_t *curr_node, unsigned int *result, int heigh
     if (0 > height)
     {
         curr_node->is_full = TRUE;
-        printf("SUCCESS\n");
+       
         return SUCCESS;
     }
     
@@ -167,33 +171,26 @@ static int TrieInsertRec(trie_node_t *curr_node, unsigned int *result, int heigh
     {
         if(NULL != curr_node->children[1 - side_bit] && curr_node->children[1 - side_bit]->is_full)
         {
-            result = NULL;
-            return FULL_TREE;
+            *result = UINT_MAX;
+            
+            return SEARCH_BIGGER;
         }
-        printf("some1 is full need to fix height = %d, result=%u\n", height, *result);
+        /*some1 is full need to fix height */
         if (0 == side_bit)
-        {
-            printf("here 1\n");
-            *result &= ~((1 << (height + 1)) - 1);  /* set off all bits on the right to current bit and set current bit on */
-            side_bit = 1;
-            *result ^= (1 << height);
+        {   
+            /* set off all bits on the right to current bit and set current bit on */
+            side_bit = UpdateUintPtrToNext(result, height);
         }
 
         else
         {
             return SEARCH_BIGGER;
         }
-        /*check in tests, change to search next if needed*/ /*if all "bigger" are full insert after NETWORK the first available, same if user haven't send requested ID or give invalid one, probably in dhcp.c*/
     }
 
-	if (NULL == curr_node->children[side_bit])
+	if (FALSE == VerifyNodeExistence(curr_node, side_bit, result))
     {
-        curr_node->children[side_bit] = TrieCreateNode();
-        if (NULL == curr_node->children[side_bit])
-        {
-            result = NULL;
-            return FAILURE;
-        }
+        return FAILURE;
     }
     
     status = TrieInsertRec(curr_node->children[side_bit], result, height - 1);
@@ -208,27 +205,21 @@ static int TrieInsertRec(trie_node_t *curr_node, unsigned int *result, int heigh
         else   
         {
             /* set off all bits on the right to current bit and set current bit on */
-            *result &= ~((1 << (height + 1)) - 1);
-            side_bit = 1;
-            *result ^= (1 << height);
+            side_bit = UpdateUintPtrToNext(result, height);
 
             if (NULL == curr_node->children[side_bit])
             {
                 curr_node->children[side_bit] = TrieCreateNode();
+                if (NULL == curr_node->children[side_bit])
+                {
+                    *result = UINT_MAX;
+                    
+                    return FAILURE;
+                }
             }
             
             status = TrieInsertRec(curr_node->children[side_bit], result, height - 1);
-            if (status == FULL_TREE)
-            {
-                return FIND_SMALLER;
-            }
         }
-    }
-
-    if (SEARCH_BIGGER == status)
-    {
-        printf("FIND_SMALLER in TrieInsertRec\n");
-        return FIND_SMALLER;
     }
     
     curr_node->is_full = IS_FULL(curr_node->children[LEFT], curr_node->children[RIGHT]);
@@ -238,20 +229,22 @@ static int TrieInsertRec(trie_node_t *curr_node, unsigned int *result, int heigh
 
 static trie_status_t TrieFreeRec(trie_node_t *curr_node, unsigned int requested, int height)
 {
-    int side_bit = (FALSE != (requested & (1 << height)));
+    int side_bit = requested >> height & 1;
     trie_status_t status = SUCCESS;
     
 	assert(NULL != curr_node);
 
     if (0 == height)
     {
-        if (TRUE != curr_node->is_full)
+        if (TRUE != curr_node->children[side_bit]->is_full)
         {
             return DOUBLE_FREE;
         }
         else
         {
+            curr_node->children[side_bit]->is_full = FALSE;
             curr_node->is_full = FALSE;
+
             return SUCCESS;
         }
     }
@@ -261,22 +254,13 @@ static trie_status_t TrieFreeRec(trie_node_t *curr_node, unsigned int requested,
         status = TrieFreeRec(curr_node->children[side_bit], requested, height - 1);
         curr_node->is_full = FALSE;
     }
+    else
+    {
+        status = DOUBLE_FREE;
+    }
     
     return status;
 }
-
-/*static size_t TrieCountFull(trie_node_t *node, int height, size_t counter)
-{
-	assert(NULL != node);
-
-	if (0 == height && node->is_full)
-	{
-		return ++counter;
-	}
-	
-	return TrieCountFull(node->children[LEFT], height - 1, counter);
-	return TrieCountFull(node->children[RIGHT], height - 1, counter);
-}*/
 
 static trie_node_t *TrieCreateNode()
 {
@@ -293,4 +277,30 @@ static trie_node_t *TrieCreateNode()
 	trie_node->is_full = FALSE;
     
     return trie_node;
+}
+
+static child_pos_t UpdateUintPtrToNext(unsigned int *result, int height)
+{
+    *result &= ~((1 << (height + 1)) - 1);
+    *result ^= (1 << height);
+
+    return RIGHT;
+}
+
+static boolean_t VerifyNodeExistence(trie_node_t *node, int side_bit, unsigned int *result)
+{
+    boolean_t boolean = TRUE;
+
+    if (NULL == node->children[side_bit])
+    {
+        node->children[side_bit] = TrieCreateNode();
+        
+        if (NULL == node->children[side_bit])
+        {
+            *result = UINT_MAX;
+            boolean = FALSE;
+        }
+    }
+
+    return boolean;
 }

@@ -17,7 +17,7 @@ obj_src = $(WSNAME).o
 TARGET = $(WSNAME)
 
 $(TARGET): $(OBJS)  
-	$(CC) -g $(SRCS) -o $(BIN_PATH)$(TARGET)  
+	$(CC) -g $(SRCS) -lm -o $(BIN_PATH)$(TARGET)  
 	rm $(OBJS)
 debug: $(OBJS) 
 	$(CC) -g $(SRCS) -o $(BIN_PATH)$(TARGET) 

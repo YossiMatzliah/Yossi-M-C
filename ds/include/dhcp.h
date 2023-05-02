@@ -1,3 +1,9 @@
+/************************************
+*	Developer :	Yossi Matzliah      *
+*	Reviewer  :	Yotam S				*
+*	Date      : 01/05/2023			*
+************************************/
+
 #ifndef __ILRD__OL13940_DHCP__
 #define __ILRD__OL13940_DHCP__
 
@@ -13,9 +19,11 @@ Each node in the trie should have an 'is_full' flag; this will indicate a full s
 typedef enum dhcp_status
 {
     SUCCESS = 0,
-    FULL = 1,
-    DOUBLE_FREE = 2,
-    DS_FAILURE = 3
+    FAILURE = 1, /*for check valid ip*/
+    FULL = 2,   /*DHCP is full*/
+    DOUBLE_FREE = 3, /*free already freed address*/
+    DS_FAILURE = 4, /*memory allocation failure in data structure*/
+    INVALID_FREE = 5 /*free network, server or broadcast addresses*/
 } dhcp_status_t;
 
 /*
@@ -45,6 +53,7 @@ dhcp_t *DHCPCreate(unsigned char *subnet_ip, size_t bits_in_subnet);
 * @param:
 *   DHCP - pointer to a valid DHCP
 *	requested_ip - the preffered id
+*       If not preffered specific id send NULL
 *   result_ip - a pointer that will evntually point to the allocated ip
 * 
 * @return:
@@ -104,5 +113,8 @@ size_t DHCPCountFree(const dhcp_t *dhcp);
 *	Space O(1)
 */
 void DHCPDestroy(dhcp_t *dhcp);
+
+/* prints the ips*/
+void PrintCharPtr(unsigned char *ptr);
 
 #endif
