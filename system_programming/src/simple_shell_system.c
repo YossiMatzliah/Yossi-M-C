@@ -15,8 +15,7 @@
 
 /***************************** Static Functions ***********************************/
 
-/*void SplitWords(char *user_choise, char *args[]);
-void FreeArgs(char *args[]);*/
+static void GetLine(char *prompt, char *input);
 
 /***************************** Main Function ***********************************/
 
@@ -26,8 +25,7 @@ int main()
    
     char input[MAX_INPUT] = {0};
     
-    printf("\t%s ", prompt);
-    fgets(input, MAX_INPUT, stdin);
+    GetLine(prompt, input);
 
     while (0 != strncmp(input, "exit", 4))
     {
@@ -37,9 +35,16 @@ int main()
               break;
         }
 
-        printf("\t%s ", prompt);
-        fgets(input, MAX_INPUT, stdin);
+        GetLine(prompt, input);
     }
     
     return 0;
+}
+
+/****************** Static Functions *****************/
+
+void GetLine(char *prompt, char *input)
+{
+    printf("\t%s ", prompt);
+    fgets(input, MAX_INPUT, stdin);
 }

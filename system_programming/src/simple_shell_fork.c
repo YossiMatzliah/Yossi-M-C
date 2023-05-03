@@ -12,11 +12,13 @@
 #include <sys/wait.h>	/* wait */
 
 #define MAX_INPUT (64)
+#define SUCCESS (0)
+#define FAILURE (-1)
 
 /***************************** Static Functions ***********************************/
 
-void SplitWords(char *input, char *args[]);
-void FreeArgs(char *args[]);
+static int SplitWords(char *input, char *args[]);
+static void FreeArgs(char *args[]);
 
 /***************************** Main Function ***********************************/
 
@@ -33,7 +35,10 @@ int main()
         printf("\t%s ", prompt);
         fgets(input, MAX_INPUT, stdin);
 
-        SplitWords(input, args);
+        if (FAILURE == SplitWords(input, args))
+        {
+            return FAILURE;
+        }
         
         if (0 == strcmp(args[0], "exit"))
         {
@@ -63,7 +68,7 @@ int main()
     return 0;
 }
 
-void SplitWords(char *input, char *args[])
+static int SplitWords(char *input, char *args[])
 {
     size_t index = 0;
     char *token = strtok(input, " \n");
@@ -73,14 +78,21 @@ void SplitWords(char *input, char *args[])
     {
         len = strlen(token) + 1;
         args[index] = malloc(len);
+        if (NULL == args)
+        {
+            perror("Allocation err\n");
+            return FAILURE;
+        }
         strcpy(args[index], token);
         ++index; 
         token = strtok(NULL, " \n");
     }
     args[index] = NULL;
+
+    return SUCCESS;
 }
 
-void FreeArgs(char *args[])
+static void FreeArgs(char *args[])
 {
     size_t i = 0;
 
