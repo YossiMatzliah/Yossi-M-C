@@ -1,7 +1,7 @@
 /************************************
 *	Developer :	Yossi Matzliah      *
-*	Reviewer  :	????				*
-*	Date      : ?/05/2023			*
+*	Reviewer  :	Yotam S.			*
+*	Date      : 07/05/2023			*
 ************************************/
 
 #define _POSIX_SOURCE
@@ -22,6 +22,8 @@ int main(/*int argc, char *argv[]*/)
 	pid_t child_pid;
 	pid_t ppid;
 	
+	ppid = getpid();
+
 	signal(SIGUSR1, SigHandler);
 	signal(SIGUSR2, SigHandler);
 
@@ -35,8 +37,6 @@ int main(/*int argc, char *argv[]*/)
 
 	if (0 == child_pid)	/* child */
 	{	
-		ppid = getppid();
-
 		while(1)
         {
 			sleep(1);

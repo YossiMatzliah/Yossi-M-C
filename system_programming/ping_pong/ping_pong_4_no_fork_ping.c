@@ -1,7 +1,7 @@
 /************************************
 *	Developer :	Yossi Matzliah      *
-*	Reviewer  :	????				*
-*	Date      : ?/05/2023			*
+*	Reviewer  :	Yotam S.			*
+*	Date      : 07/05/2023			*
 ************************************/
 #define _XOPEN_SOURCE 700
 #define _POSIX_SOURCE
@@ -25,8 +25,12 @@ int main()
 	sa.sa_sigaction = PingHandler;
     sa.sa_flags = SA_SIGINFO;
 
-	sigaction(SIGUSR1, &sa, NULL);
-	
+	if (-1 == sigaction(SIGUSR1, &sa, NULL))
+	{
+		perror("Failure!\n");
+		return 1;
+	}
+
 	while(1)
 	{
 		sleep(1);
