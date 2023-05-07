@@ -1,7 +1,7 @@
 /************************************
 *	Developer :	Yossi Matzliah      *
-*	Reviewer  :	????				*
-*	Date      : ?/05/2023			*
+*	Reviewer  :	Noam				*
+*	Date      : 03/05/2023			*
 ************************************/
 
 #include <stdio.h>		/* perror */
@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
 	if (-1 == child_pid)
 	{
 		perror("Failure!\n");
-		return 0;
+		return 1;
 	}
 
 	if (0 == child_pid)
