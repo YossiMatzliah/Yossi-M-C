@@ -13,7 +13,7 @@ int main()
 {
 	sem_t *sem = NULL;
 	char size[MAX_INPUT] = {0};
-	int init_val = 0;
+	int init_val = 1;
 	const char *name = "/sem1";
 	int real_value = 0;
     int undo_value = 0;
