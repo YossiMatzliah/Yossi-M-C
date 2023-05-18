@@ -35,7 +35,7 @@ int main()
     int producers_id[NUM_OF_THEADS] = {0};
     int consumers_id[NUM_OF_THEADS] = {0};
     unsigned int init_value = 0;
-    char *name = "semaly";
+    char *name = "sema";
     int i = 0;
 
     pthread_mutex_init(&mutex, NULL);
@@ -56,15 +56,14 @@ int main()
 
     for (i = 0; i < NUM_OF_THEADS; ++i)
     {
+        producers_id[i] = i;
         if (0 != pthread_create(&producers_th[i], NULL, Producers, &producers_id[i]))
         {
             perror("Failed in pthread_create - producer\n");
             return 1;
         }
-    }
 
-    for (i = 0; i < NUM_OF_THEADS; ++i)
-    {
+        consumers_id[i] = i;
         if (0 != pthread_create(&consumers_th[i], NULL, Consumers, &consumers_id[i]))
         {
             perror("Failed in pthread_create - consumer\n");

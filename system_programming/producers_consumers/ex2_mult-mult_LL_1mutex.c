@@ -1,7 +1,7 @@
 
-#define _XOPEN_SOURCE 700
-#define _POSIX_C_SOURCE 200112L 
-#define _DEFAULT_SOURCE
+/* #define _XOPEN_SOURCE 700
+#define _POSIX_C_SOURCE 200112L  */
+/* #define _DEFAULT_SOURCE */
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -19,42 +19,30 @@ sll_t *list;
 void *producer(void *arg)
 {
     int id = *(int *)arg;
-    int i = 0;
-    size_t input = id * MAX_ITEMS;
-    for (i = 0; i < MAX_ITEMS; ++i)
-    {
-        pthread_mutex_lock(&mutex);
-        SLLInsertBefore(SLLBeginIter(list), &input);
-        pthread_mutex_unlock(&mutex);
-        printf("Producer %d produces item %ld\n", id, input);
-        usleep(100000);
-    }
+    int input = id;
+    
+    pthread_mutex_lock(&mutex);
+    SLLInsertBefore(SLLBeginIter(list), &input);
+    printf("Producer %d produces item %d\n", id, input);
+    pthread_mutex_unlock(&mutex);
+  
     return NULL;
 }
 
 void *consumer(void *arg)
 {
     int id = *(int *)arg;
-    size_t item = 0;
-    int i = 0;
+    int item = 0;
 
-    for (i = 0; i < MAX_ITEMS; ++i)
+    if (!SLLIsEmpty(list))
     {
         pthread_mutex_lock(&mutex);
-        if (!SLLIsEmpty(list))
-        {
-            item = *(size_t *)(SLLGetData(SLLBeginIter(list)));
-            SLLRemove(SLLBeginIter(list));
-            pthread_mutex_unlock(&mutex);
-            printf("Consumer %d consumed item %ld\n", id, item);
-            usleep(100000);
-        }
-        else
-        {
-            pthread_mutex_unlock(&mutex);
-            usleep(100000);
-        }
+        item = *(int *)(SLLGetData(SLLBeginIter(list)));
+        SLLRemove(SLLBeginIter(list));
+        printf("Consumer %d consumed item %d\n", id, item);
+        pthread_mutex_unlock(&mutex);
     }
+   
     return NULL;
 }
 
@@ -77,10 +65,7 @@ int main(void)
             perror("Failed to create producer thread\n");
             exit(1);
         }
-    }
 
-    for (i = 0; i < CONSUMERS; ++i)
-    {
         cons_id[i] = i;
         if (0 != pthread_create(&consumers[i], NULL, consumer, &cons_id[i]))
         {
