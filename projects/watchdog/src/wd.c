@@ -1,8 +1,9 @@
 
-#include <sys/types.h>	/* pid_t */
-#include <unistd.h>		/* fork, exec */
-#include <signal.h>		/* signals */
-#include <pthread.h>    /* threads */
+#define _XOPEN_SOURCE 700 /* remove problems, might be removed later */
+#include <stdio.h>      /* printf */
+#include <time.h>       /* time_t */
+#include <stdlib.h>     /* env */
+#include <unistd.h>     /* getpid() */
 
 #include "wd.h"
 
@@ -13,38 +14,19 @@
 
 /*****************************************************/
 
-int MakeMeImmortal(int argc, char **argv, size_t threshold, time_t interval)
+int main(int argc, char *argv[])
 {
-    pid_t wd_pid;
-    pthread_t wd_thread = 0;
+    size_t threshold = atoi(getenv("THRESHOLD"));
+    time_t interval = atoi(getenv("INTERVAL"));
+    
+    argv[0] = "./wd.out";
 
-    (void)argc;
+    printf("In WD - PID is: %d\n", getpid());
 
-    /*signal handler init*/
+    printf("\n%s\n\n", argv[0]);
+    MakeMeImmortal(argc, argv, threshold, interval);
 
-    wd_pid = fork();
-	
-	if (-1 == wd_pid)
-	{
-		perror("Failure!\n");
-		return 1;
-	}
+    printf("returned in WD\n");
 
-	if (0 == wd_pid)	/* wd */
-	{	  
-        execvp("./wd.out", argv);
-	}
-	else	/* user */
-	{
-		pthread_create(&wd_thread, NULL, MakeMeImmortal, NULL);
-	}
-
-    pthread_join(wd_thread, NULL);
+    return 0;
 }
-
-void DoNotResuscitate()
-{
-
-}
-
-

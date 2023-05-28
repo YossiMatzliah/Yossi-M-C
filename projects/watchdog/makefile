@@ -1,38 +1,53 @@
-CC=gcc -ansi -pedantic-errors -Wall -Wextra $(INCLUDE_PATH)
-INCLUDE_PATH=-I./include/
-SRC_PATH=$(CURDIR)/src/
-TEST_PATH=$(CURDIR)/test/
-BIN_PATH=$(CURDIR)/bin/
 
-#DS_SRC_PATH=../../ds/src/
+CC=gcc
+CFLAGS=-pedantic-errors -Wall -Wextra -g -pthread -shared -fPIC
+FLAGS=-pedantic-errors -Wall -Wextra -g -pthread
+OFLAGS=-Wall -c
+DEBUG_FLAGS=-g
+RELEASE=-DNDEBUG -O3
+SRC_PATH = ../scheduler_by_heap/src/*.c src/libwd.c
+LIB_PATH = $(CURDIR)/lib/
+OBJS = ../scheduler_by_heap/src/*.o src/libwd.o
+BIN_PATH = $(CURDIR)/bin/
+CLIENT_PATH = $(CURDIR)/test/wd_client.c
+WD_PATH = $(CURDIR)/src/wd.c
+INCLUDES =-I./include/ -I../scheduler_by_heap/include/
 
-WSNAME=sched
-MORESRC=$(SRC_PATH)task
-MORESRC1=$(SRC_PATH)uid
-MORESRC2=$(SRC_PATH)pq_by_heap
-MORESRC3=$(SRC_PATH)heap
-MORESRC4=$(SRC_PATH)dynamic_vector
-OBJS=$(TEST_PATH)$(WSNAME)_test.o $(SRC_PATH)$(WSNAME).o $(MORESRC).o $(MORESRC1).o $(MORESRC2).o $(MORESRC3).o $(MORESRC4).o
-SRCS=$(TEST_PATH)$(WSNAME)_test.c $(SRC_PATH)$(WSNAME).c $(MORESRC).c $(MORESRC1).c $(MORESRC2).c $(MORESRC3).c $(MORESRC4).c
 
-TARGET = $(WSNAME)
+TARGET= libwd.so
+TARGET2 = client.out
+TARGET3 = wd.out
 
-$(TARGET): $(SRCS)  
-	$(CC) -g $(SRCS) -o $(BIN_PATH)$(TARGET) $(INCLUDE_PATH) 
-debug: $(OBJS) 
-	$(CC) -g $(SRCS) -o $(BIN_PATH)$(TARGET) $(INCLUDE_PATH)
-release: $(SRCS)	
-	$(CC) -DNDEBUG $(SRCS) -o $(BIN_PATH)$(TARGET) $(INCLUDE_PATH)
-	rm $(OBJS)	
-obj: $(SRCS) 
-	$(CC) -g $(SRCS) -o $(BIN_PATH)$(TARGET) $(INCLUDE_PATH) 	 
-.PHONY: run
-run:
-	$(BIN_PATH)./$(TARGET) 
-.PHONY : clean
-clean:
-	rm $(BIN_PATH)$(TARGET) $(OBJS) 
-all: $(TARGET) run clean		
+all: $(TARGET) $(TARGET2) $(TARGET3)
+
+release: CFLAGS+=$(RELEASE)
+release: FLAGS+=$(RELEASE)
+release: $(TARGET) $(TARGET2) $(TARGET3)
+	
+
+$(TARGET): $(SRC_PATH)
+	$(CC) $(CFLAGS) $(SRC_PATH) -o $(LIB_PATH)$(TARGET) $(INCLUDES)
+
+$(TARGET2): $(LIB_PATH)libwd.so $(CLIENT_PATH)
+	$(CC) $(FLAGS) $(CLIENT_PATH) $(INCLUDES) -L./lib/ -lwd -o $(BIN_PATH)$(TARGET2) -Wl,-rpath=./lib
+
+$(TARGET3): $(LIB_PATH)libwd.so $(WD_PATH)
+	$(CC) $(FLAGS) $(WD_PATH) $(INCLUDES) -L$(LIB_PATH) -lwd -o $(BIN_PATH)$(TARGET3) -Wl,-rpath=./lib
+
+run: 
+	$(BIN_PATH)$(TARGET2)
 
 vlg: 
-	valgrind --leak-check=yes --track-origins=yes -s $(BIN_PATH)./$(TARGET)
+	valgrind --leak-check=yes --track-origins=yes -s $(BIN_PATH)./$(TARGET2)
+
+hel:
+	valgrind --tool=helgrind -s $(BIN_PATH)./$(TARGET2)	
+	
+#debug: $(OBJS)
+#	$(CC) $(CFLAGS) $(DEBUG_FLAGS) $(OBJS) -o $(BIN_PATH)$(TARGET) $(INCLUDES)
+
+
+	
+clean:
+	rm -f $(BIN_PATH)$(TARGET) *.o
+
