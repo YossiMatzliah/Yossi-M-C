@@ -1,3 +1,9 @@
+/************************************
+*	Developer :	Yossi Matzliah      *
+*	Reviewer  :	Neviu   			*
+*	Date      : 29/05/2023			*
+************************************/
+
 #include <stdio.h>      /* printf */
 #include <time.h>       /* time.h */
 #include <unistd.h>     /* sleep */
@@ -5,7 +11,7 @@
 
 #include "wd.h"
 
-#define TIME_TO_SLEEP (20)
+#define TIME_TO_SLEEP (23)
 
 int main(int argc, char *argv[])
 {

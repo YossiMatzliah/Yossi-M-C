@@ -1,3 +1,8 @@
+/************************************
+*	Developer :	Yossi Matzliah      *
+*	Reviewer  :	Neviu   			*
+*	Date      : 29/05/2023			*
+************************************/
 
 #define _POSIX_C_SOURCE 200112L /* remove problems, might be removed later */
 #include <sys/types.h>	/* pid_t */
@@ -11,18 +16,19 @@
 #include <sys/wait.h>   /* wait */
 #include <stdlib.h>     /* setenv, exit */
 #include <string.h>     /* strcmp */
+#include <assert.h>     /* assert */
 
 #include "wd.h"
-#include "sched.h"
 
 #define FAILURE (-1)
 #define SUCCESS (0)
+
 #define THRESHOLD_ENV ("THRESHOLD")
 #define INTERVAL_ENV ("INTERVAL")
 #define WD_PID_ENV ("WD_PID")
-#define USER_IMAGE_ENV ("USER_IMAGE")
-#define MAX_BUF_SIZE (11)
+#define USER_EXECUTABLE_ENV ("USER_EXECUTABLE")
 
+#define MAX_BUF_SIZE (11)
 
 #ifndef NDEBUG
 #define PRINT_DEBUG(...) (printf(__VA_ARGS__))
@@ -30,15 +36,23 @@
 #define PRINT_DEBUG(...)
 #endif
 
+/*****************************************************/
 
 pid_t worker_pid = 0;
+
 pthread_t client_thread = 0;
 pthread_t wd_thread = 0;
+
 sem_t *sema;
 char *sem_name = "sem1";
-atomic_int atomic_counter = 0;
-atomic_int atomic_stop = 0;
+
+atomic_size_t atomic_counter = 0;
+atomic_size_t atomic_stop = 0;
+
 sch_t *sched;
+
+size_t threshold_g = 0;
+time_t interval_g = 0;
 
 /*****************************************************/
 
@@ -48,9 +62,11 @@ void Sig2Handler(int signum, siginfo_t *info, void *context);
 static void *CreateSchedNdTasks(void *args);
 static int SendSignalTask(void *th_pid);
 static int CheckSigCounterTask(void *args);
-static void *RunSched(void *arguments);
+
+static void *WDRunSched(void *arguments);
 static void *WorkerRunSched(void *arguments);
 static int ResuscitateWD(void *arguments);
+
 static void CleanUp();
 
 /*****************************************************/
@@ -58,23 +74,33 @@ static void CleanUp();
 int MakeMeImmortal(int argc, char **argv, size_t threshold, time_t interval)
 {
     unsigned int init_value = 0;
+
     struct sigaction sa1 = {0};
     struct sigaction sa2 = {0};
+    
     char threshold_buffer[MAX_BUF_SIZE] = {0};
     char interval_buffer[MAX_BUF_SIZE] = {0};
     char wd_pid_buffer[MAX_BUF_SIZE] = {0};
+
+    assert(NULL != argv);
+    assert(0 < argc);
 
     (void)argc;
 
     sprintf(threshold_buffer, "%ld", threshold);
     sprintf(interval_buffer, "%ld", interval);
-    setenv(THRESHOLD_ENV, threshold_buffer, 1);
-    setenv(INTERVAL_ENV, interval_buffer, 1);
+    if(0 != setenv(THRESHOLD_ENV, threshold_buffer, 1) ||
+           0 != setenv(INTERVAL_ENV ,interval_buffer, 1)) 
+    {
+        perror("setenv err\n");
+        return FAILURE;
+    }
+
+    threshold_g = threshold;
+    interval_g = interval;
 
     sa1.sa_sigaction = Sig1Handler;
-    sa1.sa_flags = SA_SIGINFO;
 	sa2.sa_sigaction = Sig2Handler;
-    sa2.sa_flags = SA_SIGINFO;
 
     if (FAILURE == sigaction(SIGUSR1, &sa1, NULL))
 	{
@@ -89,14 +115,23 @@ int MakeMeImmortal(int argc, char **argv, size_t threshold, time_t interval)
 	}
 
     sema = sem_open(sem_name, O_CREAT, 0666, init_value);
-    
+    if(SEM_FAILED == sema)
+    {
+        perror("sem: ");
+        return FAILURE; 
+    }
+
     atomic_stop = 0;
 
     sched = (sch_t *)CreateSchedNdTasks(argv);
     PRINT_DEBUG("\n%s\n", argv[0]);
     if (0 != strcmp("./wd.out", argv[0]))  /* first time, enters, afterward only if not WD */
     {
-        setenv("USER_IMG", argv[0], 1);
+        if(0 != setenv("USER_EXECUTABLE", argv[0], 1))
+        {
+            perror("setenv err\n");
+            return FAILURE;        
+        }
         PRINT_DEBUG("\n%s\n", argv[0]);
         worker_pid = fork();
         
@@ -109,8 +144,12 @@ int MakeMeImmortal(int argc, char **argv, size_t threshold, time_t interval)
         else if (0 == worker_pid)	/* WD */
         {	  
             sprintf(wd_pid_buffer, "%d", getpid());
-            setenv("WD_PID", wd_pid_buffer, 1);
-            
+            if(0 != setenv("WD_PID", wd_pid_buffer, 1))
+            {
+                perror("setenv err\n");
+                return FAILURE;        
+            }
+
             PRINT_DEBUG("wd_pid = %d\n exec wd.out!\n", getpid());
             execvp("./bin/wd.out", argv);
             PRINT_DEBUG("\n%s\n\n", argv[0]);
@@ -120,7 +159,11 @@ int MakeMeImmortal(int argc, char **argv, size_t threshold, time_t interval)
         else	/* client */
         {
             sprintf(wd_pid_buffer, "%d", worker_pid);
-            setenv("WD_PID", wd_pid_buffer, 1);
+            if(0 != setenv("WD_PID", wd_pid_buffer, 1))
+            {
+                perror("setenv err\n");
+                return FAILURE;        
+            }
 
             PRINT_DEBUG("arg[0] = %s\n", argv[0]);
             PRINT_DEBUG("In USER - PID is: %d\n", getpid());
@@ -129,6 +172,8 @@ int MakeMeImmortal(int argc, char **argv, size_t threshold, time_t interval)
             if (0 != pthread_create(&client_thread, NULL, WorkerRunSched, argv))
             {
                 perror("pthread_create FAILURE!\n");
+                DoNotResuscitate();
+
                 return FAILURE;
             }
         }
@@ -137,7 +182,7 @@ int MakeMeImmortal(int argc, char **argv, size_t threshold, time_t interval)
     {
         sem_post(sema);
         PRINT_DEBUG("run WD sched\n");
-        RunSched(argv);
+        WDRunSched(argv);
 
         PRINT_DEBUG("sched destroy\n");
         SchDestroy(sched);
@@ -167,40 +212,48 @@ void Sig1Handler(int signum, siginfo_t *info, void *context)
 {
 	(void)context;
     (void)info;
+    (void)signum;
+
     PRINT_DEBUG("entered sigusr1\n\n");
-	if (SIGUSR1 == signum)
-	{
-        PRINT_DEBUG("HandlerSIGUSR1\n   handler PID to signal is: %d\n", getpid());
-		atomic_counter = 0;
-    }
+    PRINT_DEBUG("HandlerSIGUSR1\n   handler PID to signal is: %d\n", getpid());
+	
+    atomic_counter = 0;
 }
 
 void Sig2Handler(int signum, siginfo_t *info, void *context)
 {
 	(void)context;
     (void)info;
+    (void)signum;
 
-	if (SIGUSR2 == signum)
-	{
-		PRINT_DEBUG("\nHandlerSIGUSR2\n"); 
-        ++atomic_stop;
-    }
+    PRINT_DEBUG("\nHandlerSIGUSR2\n"); 
+
+    ++atomic_stop;
 }
 
 static void *CreateSchedNdTasks(void *args)
 {
     sch_t *sched = SchCreate();
-    time_t sig_interval = atoi(getenv("INTERVAL"));
+    ilrd_uid_t uid_task1 = {0};
+    ilrd_uid_t uid_task2 = {0};
 
     if (NULL == sched)
     {
         perror("SchdCreate Failed\n");
         return NULL;
     }
+
     PRINT_DEBUG("Sched created\n\n");
 
-    SchAddTask(sched, SendSignalTask, args, time(NULL), sig_interval);
-    SchAddTask(sched, CheckSigCounterTask, args, time(NULL), sig_interval);
+    uid_task1 = SchAddTask(sched, SendSignalTask, args, time(NULL), interval_g);
+    uid_task2 = SchAddTask(sched, CheckSigCounterTask, args, time(NULL), interval_g);
+
+    if(UIDIsSame(uid_task1, UIDGetBad()) || UIDIsSame(uid_task2, UIDGetBad()))
+	{
+        SchDestroy(sched);
+
+		return NULL;
+	}
 
     return sched;
 }
@@ -210,9 +263,9 @@ static int SendSignalTask(void *th_pid)
     (void)th_pid;
 
     PRINT_DEBUG("   task PID to signal is: %d\n", getpid());
-    PRINT_DEBUG("counter = %d\n", atomic_counter);
+    PRINT_DEBUG("counter = %ld\n", atomic_counter);
 
-        PRINT_DEBUG("atomic_stop = %d\n", atomic_stop);
+        PRINT_DEBUG("atomic_stop = %ld\n", atomic_stop);
         if (0 == worker_pid)
         {
             PRINT_DEBUG("send SIGUSR1 to pid %d\n", getppid());
@@ -224,7 +277,7 @@ static int SendSignalTask(void *th_pid)
             kill(worker_pid, SIGUSR1);
         }
         ++atomic_counter;
-        PRINT_DEBUG("counter = %d\n", atomic_counter);
+        PRINT_DEBUG("counter = %ld\n", atomic_counter);
 
 
     return SUCCESS;
@@ -232,7 +285,6 @@ static int SendSignalTask(void *th_pid)
 
 static int CheckSigCounterTask(void *args)
 {
-    int sig_threshold = atoi(getenv("THRESHOLD"));
     int wd_pid = atoi(getenv("WD_PID"));
 
     (void)args;
@@ -242,8 +294,8 @@ static int CheckSigCounterTask(void *args)
         return FAILURE;
     }
 
-    PRINT_DEBUG("counter = %d", atomic_counter);
-    if (atomic_counter >= sig_threshold)
+    PRINT_DEBUG("counter = %ld", atomic_counter);
+    if (atomic_counter >= threshold_g)
     {
         atomic_counter = 0;
 
@@ -263,7 +315,7 @@ static int CheckSigCounterTask(void *args)
     return SUCCESS;
 }
 
-static void *RunSched(void *arguments)
+static void *WDRunSched(void *arguments)
 {
     char **args = (char **)arguments;
 
@@ -274,10 +326,10 @@ static void *RunSched(void *arguments)
         /* stop, and revive the dead/stucked process */
     
         /* Survivor is WD: */
-        args[0] = getenv("USER_IMG");
+        args[0] = getenv("USER_EXECUTABLE");
 
         SchDestroy(sched);
-        PRINT_DEBUG("checcccccckkkk%s\n", args[0]);
+        PRINT_DEBUG("check \t%s\n", args[0]);
 
         if (-1 == sem_unlink(sem_name))
         {
@@ -289,13 +341,12 @@ static void *RunSched(void *arguments)
         {
             perror("execvp FAILURE!\n");
         }
-        
     }
 
     return NULL;
 }
 
-static void *WorkerRunSched(void * arguments)
+static void *WorkerRunSched(void * arguments)   /* client_thread */
 {
     (void)arguments;
     sem_wait(sema);
@@ -304,7 +355,7 @@ static void *WorkerRunSched(void * arguments)
     return NULL;
 }
 
-static int ResuscitateWD(void * arguments)
+static int ResuscitateWD(void * arguments)  /* client_thread */
 {
     char wd_pid_buffer[MAX_BUF_SIZE];
 
@@ -320,7 +371,11 @@ static int ResuscitateWD(void * arguments)
     else if (0 == worker_pid)    /* child */
     {
         sprintf(wd_pid_buffer, "%d", getpid());
-        setenv("WD_PID", wd_pid_buffer, 1);
+        if(0 != setenv("WD_PID", wd_pid_buffer, 1))
+        {
+            perror("setenv err\n");
+            return FAILURE;        
+        }
         
         PRINT_DEBUG("INSIDE NEW WD, doing execvp\n");
         if (-1 == execvp("./bin/wd.out", arguments))
@@ -331,8 +386,11 @@ static int ResuscitateWD(void * arguments)
     else    /* Parent */
     {
         sprintf(wd_pid_buffer, "%d", worker_pid);
-        setenv("WD_PID", wd_pid_buffer, 1);
-
+        if(0 != setenv("WD_PID", wd_pid_buffer, 1))
+        {
+            perror("setenv err\n");
+            return FAILURE;        
+        }
         PRINT_DEBUG("INSIDE Client sem_wait and run sched \n");
         
         sem_wait(sema);
@@ -349,7 +407,7 @@ static void CleanUp()
     unsetenv("THRESHOLD");
     unsetenv("INTERVAL");
     unsetenv("WD_PID");
-    unsetenv("USER_IMG");
+    unsetenv("USER_EXECUTABLE");
 
     SchDestroy(sched);
 }

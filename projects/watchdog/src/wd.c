@@ -1,16 +1,15 @@
+/************************************
+*	Developer :	Yossi Matzliah      *
+*	Reviewer  :	Neviu   			*
+*	Date      : 29/05/2023			*
+************************************/
 
-#define _XOPEN_SOURCE 700 /* remove problems, might be removed later */
-#include <stdio.h>      /* printf */
-#include <time.h>       /* time_t */
-#include <stdlib.h>     /* env */
-#include <unistd.h>     /* getpid() */
+#include <stdio.h>          /* printf */
+#include <time.h>           /* time_t */
+#include <stdlib.h>         /* getenv */
+#include <unistd.h>         /* getpid() */
 
 #include "wd.h"
-
-
-/*****************************************************/
-
-
 
 /*****************************************************/
 
