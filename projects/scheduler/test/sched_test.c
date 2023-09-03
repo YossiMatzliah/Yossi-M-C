@@ -72,7 +72,7 @@ static void CreateDestroyTest()
 static void AddRemoveTest()
 {
 	sch_t *sched = NULL;
-	ilrd_uid_t task_uid = {0};
+	uid_t task_uid = {0};
 	
 	printf(U_LINE"\nTesting SchAdd & SchRemove\n"RESET);
 	sched = SchCreate();
@@ -93,7 +93,7 @@ static void AddRemoveTest()
 static void SizeTest()
 {
 	sch_t *sched = NULL;
-	ilrd_uid_t task_uid = {0};
+	uid_t task_uid = {0};
 	
 	printf(U_LINE"\nTesting SchSize\n"RESET);
 	sched = SchCreate();

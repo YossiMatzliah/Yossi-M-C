@@ -4,8 +4,8 @@
 *	Date      : 19/04/2023			*
 ************************************/
 
-#ifndef __ILRD_139_40__HEAP_H__
-#define __ILRD_139_40__HEAP_H__
+#ifndef __HEAP_H__
+#define __HEAP_H__
 
 #include <stddef.h> /* size_t */
 

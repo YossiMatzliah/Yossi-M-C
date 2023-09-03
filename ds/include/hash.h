@@ -4,8 +4,8 @@
 *	Date      : 15/04/2023			*
 ************************************/
 
-#ifndef __ILRD_139_40__HASH_TABLE_H__
-#define __ILRD_139_40__HASH_TABLE_H__
+#ifndef __HASH_TABLE_H__
+#define __HASH_TABLE_H__
 
 #include <stddef.h>
 

@@ -4,8 +4,8 @@
 *	Date      : 29/05/2023			*
 ************************************/
 
-#ifndef __ILRD_OL139_40_WD_H__
-#define __ILRD_OL139_40_WD_H__
+#ifndef __WD_H__
+#define __WD_H__
 
 #include <stddef.h> /* size_t */
 

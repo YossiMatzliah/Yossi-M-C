@@ -1,5 +1,5 @@
-#ifndef __ILRD139_40_WORD_BOUNDARY_H__
-#define __ILRD139_40_WORD_BOUNDARY_H__
+#ifndef __WORD_BOUNDARY_H__
+#define __WORD_BOUNDARY_H__
 #include <stddef.h> /* size_t */
 #include <stdio.h> /* printf, __WORDSIZE */
 

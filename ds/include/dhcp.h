@@ -4,8 +4,8 @@
 *	Date      : 01/05/2023			*
 ************************************/
 
-#ifndef __ILRD__OL13940_DHCP__
-#define __ILRD__OL13940_DHCP__
+#ifndef __DHCP__
+#define __DHCP__
 
 #include <stddef.h>     /* size_t */
 

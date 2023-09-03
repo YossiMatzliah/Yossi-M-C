@@ -4,8 +4,8 @@
 *	Reviewer  :	Lilach				  *
 **************************************/
 
-#ifndef __ILRD_139_40__LINKED_LIST_H__
-#define __ILRD_139_40__LINKED_LIST_H__
+#ifndef __LINKED_LIST_H__
+#define __LINKED_LIST_H__
 
 #include <stddef.h> /* size_t */
 

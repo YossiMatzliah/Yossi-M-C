@@ -4,8 +4,8 @@
 *	Date      : 08/03/2023			*
 ************************************/
 
-#ifndef __ILRD_OL139_40_FSA_H__
-#define __ILRD_OL139_40_FSA_H__
+#ifndef __FSA_H__
+#define __FSA_H__
 
 typedef struct fsa fsa_t;
 

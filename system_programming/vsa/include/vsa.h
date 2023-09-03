@@ -4,8 +4,8 @@
 *	Date      : 11/03/2023			*
 ************************************/
 
-#ifndef __ILRD_OL139_40_VSA_H__
-#define __ILRD_OL139_40_VSA_H__
+#ifndef __VSA_H__
+#define __VSA_H__
 
 #include <stddef.h> /* size_t */
 

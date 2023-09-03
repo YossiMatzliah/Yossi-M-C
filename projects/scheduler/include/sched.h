@@ -4,8 +4,8 @@
 *	Date      : 05/03/2023			*
 ************************************/
 
-#ifndef __ILRD_OL139_40_SCHED_H__
-#define __ILRD_OL139_40_SCHED_H__
+#ifndef __SCHED_H__
+#define __SCHED_H__
 
 #include "uid.h" 
 
@@ -65,7 +65,7 @@ void SchDestroy(sch_t *scheduler);
 * @Complexity
 *	O(n)
 */
-ilrd_uid_t SchAddTask(sch_t *scheduler ,int (*op_func)(void *), void *params, time_t exec_time , time_t interval);
+uid_t SchAddTask(sch_t *scheduler ,int (*op_func)(void *), void *params, time_t exec_time , time_t interval);
 
 /*
 * SchRemoveTask Description:
@@ -82,7 +82,7 @@ ilrd_uid_t SchAddTask(sch_t *scheduler ,int (*op_func)(void *), void *params, ti
 * @Complexity
 *	O(n)
 */
-void SchRemoveTask(sch_t *scheduler ,ilrd_uid_t task_uid);
+void SchRemoveTask(sch_t *scheduler ,uid_t task_uid);
 
 /*
 * SchIsEmpty Description:

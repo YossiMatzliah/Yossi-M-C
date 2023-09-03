@@ -4,8 +4,8 @@
 *	Date      : 21/03/2023			*
 ************************************/
 
-#ifndef __ILRD_139_40__BST_H__
-#define __ILRD_139_40__BST_H__
+#ifndef __BST_H__
+#define __BST_H__
 
 #include <stddef.h>	/* size_t */
 

@@ -21,9 +21,9 @@ static size_t count = 0;
 
 /************************************************/
 
-ilrd_uid_t UIDCreate()
+uid_t UIDCreate()
 {
-	ilrd_uid_t new_uid = {0};
+	uid_t new_uid = {0};
 	
 	struct ifaddrs *ifadress_struct = NULL;
 	struct ifaddrs *ifa_runner = NULL;
@@ -57,7 +57,7 @@ ilrd_uid_t UIDCreate()
 	return new_uid;
 }
 
-int UIDIsSame(ilrd_uid_t lhs, ilrd_uid_t rhs)
+int UIDIsSame(uid_t lhs, uid_t rhs)
 {
 	int check = TRUE;
 	
@@ -85,9 +85,9 @@ int UIDIsSame(ilrd_uid_t lhs, ilrd_uid_t rhs)
 
 }
 
-ilrd_uid_t UIDGetBad()
+uid_t UIDGetBad()
 {
-	ilrd_uid_t bad_uid = {0};
+	uid_t bad_uid = {0};
 	
 	return bad_uid;
 }

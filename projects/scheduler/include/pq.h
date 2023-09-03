@@ -4,8 +4,8 @@
 *	Date      : 28/02/2023			*
 ************************************/
 
-#ifndef __ILRD_OL139_40_PQ_H__
-#define __ILRD_OL139_40_PQ_H__
+#ifndef __PQ_H__
+#define __PQ_H__
 
 #include <stddef.h> /*size_t*/
 

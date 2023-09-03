@@ -18,7 +18,7 @@ struct task
 {
    time_t exec_time;	/* when to run in epoch time (time_t in seconds) */
    time_t interval;		/* 1 for every second 60 for every minute etc.   */
-   ilrd_uid_t uid; 
+   uid_t uid; 
    int (*op_func)(void *);
    void *params;
 };
@@ -82,7 +82,7 @@ time_t TaskGetInterval(task_t *task)
 	return task->interval;
 }
 
-ilrd_uid_t TaskGetUID(task_t *task)
+uid_t TaskGetUID(task_t *task)
 {
 	assert(NULL != task);
 	

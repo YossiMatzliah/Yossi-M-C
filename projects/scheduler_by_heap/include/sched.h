@@ -4,8 +4,8 @@
 *	Date      : 05/03/2023			*
 ************************************/
 
-#ifndef __ILRD_OL139_40_SCHED_H__
-#define __ILRD_OL139_40_SCHED_H__
+#ifndef __SCHED_H__
+#define __SCHED_H__
 
 #include "uid.h" 
 

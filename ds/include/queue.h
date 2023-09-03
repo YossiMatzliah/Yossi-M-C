@@ -3,8 +3,8 @@
 *	Date      :	12.02.2023			*
 *	Reviewer  :	Oran				*
 ************************************/
-#ifndef __ILRD_139_40__QUEUE_H__
-#define __ILRD_139_40__QUEUE_H__
+#ifndef __QUEUE_H__
+#define __QUEUE_H__
 
 #include <stddef.h>	/* size_t */
 

@@ -145,8 +145,8 @@ static void GetUIDTest()
 {
 	task_t *task = NULL;
 	task_t *task2 = NULL;
-	ilrd_uid_t uid;
-	ilrd_uid_t bad;
+	uid_t uid;
+	uid_t bad;
 	
 	printf(U_LINE"\nTesting GetUID\n"RESET);
 	task = TaskCreate(DoNothing, NULL, 1, 1);

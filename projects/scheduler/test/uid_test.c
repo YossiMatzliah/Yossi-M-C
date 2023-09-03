@@ -38,8 +38,8 @@ int main()
 
 static void TestUIDCreate()
 {
-	ilrd_uid_t uid_create = {0};
-	ilrd_uid_t uid_check = {0};
+	uid_t uid_create = {0};
+	uid_t uid_check = {0};
 	
 	uid_create = UIDCreate();
 	
@@ -63,8 +63,8 @@ static void TestUIDCreate()
 
 static void TestUIDIsSame()
 {
-	ilrd_uid_t test_uid_1 = UIDCreate();
-	ilrd_uid_t test_uid_2 = UIDCreate();
+	uid_t test_uid_1 = UIDCreate();
+	uid_t test_uid_2 = UIDCreate();
 	
 	printf(U_LINE"\nTest UID Is Same:\n"RESET);
 	printf("Test 1:\n");
@@ -76,7 +76,7 @@ static void TestUIDIsSame()
 
 static void TestUIDGetBad()
 {
-	ilrd_uid_t uid_bad = {0};
+	uid_t uid_bad = {0};
 	char *test_bad_ip = "";
 	int diff = 0;
 	

@@ -1,5 +1,5 @@
-#ifndef __ILRD_OL139_40_BIT_ARRAY_H__
-#define __ILRD_OL139_40_BIT_ARRAY_H__
+#ifndef __BIT_ARRAY_H__
+#define __BIT_ARRAY_H__
 
 /* Req - support 64 bit array */
 /* we can use size_t and work on it */

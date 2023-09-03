@@ -4,8 +4,8 @@
 *	Date      : 25/04/2023			*
 ************************************/
 
-#ifndef __ILRD__OL139_40__KNIGHT_TOUR_H__
-#define __ILRD__OL139_40__KNIGHT_TOUR_H__
+#ifndef __KNIGHT_TOUR_H__
+#define __KNIGHT_TOUR_H__
 
 #define ROWS (8)
 #define COLUMNS (8)

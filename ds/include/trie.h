@@ -4,8 +4,8 @@
 *	Date      : 01/05/2023			*
 ************************************/
 
-#ifndef __ILRD__OL139_40__TRIE_H__
-#define __ILRD__OL139_40__TRIE_H__
+#ifndef __TRIE_H__
+#define __TRIE_H__
 
 #include <stddef.h>     /* size_t */
 

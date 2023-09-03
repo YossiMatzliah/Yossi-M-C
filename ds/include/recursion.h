@@ -4,8 +4,8 @@
 *	Date      : 18/03/2023			  *
 **************************************/
 
-#ifndef __ILRD_OL139_40_RECURSION_H__
-#define __ILRD_OL139_40_RECURSION_H__
+#ifndef __RECURSION_H__
+#define __RECURSION_H__
 
 #include "stack.h"
 

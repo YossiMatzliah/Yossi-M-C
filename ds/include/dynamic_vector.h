@@ -1,5 +1,5 @@
-#ifndef __ILRD_139_40__DYNAMIC_VECTOR_H__
-#define __ILRD_139_40__DYNAMIC_VECTOR_H__
+#ifndef __DYNAMIC_VECTOR_H__
+#define __DYNAMIC_VECTOR_H__
 
 #include <stdio.h> /* size_t, printf */
 

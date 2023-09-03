@@ -4,8 +4,8 @@
 *	Reviewer  :	Limor				*
 ************************************/
 
-#ifndef __ILRD_139_40__LINKED_LIST_EX_H__
-#define __ILRD_139_40__LINKED_LIST_EX_H__
+#ifndef __LINKED_LIST_EX_H__
+#define __LINKED_LIST_EX_H__
 
 typedef struct node node_t;
 

@@ -1,5 +1,5 @@
-#ifndef __OL3940_ITOA_H_
-#define __OL3940_ITOA_H_
+#ifndef __ITOA_H_
+#define __ITOA_H_
 
 #include <stdio.h>	/* size_t, printf, snprintf */
 #include <stdlib.h> /* malloc, free, atoi */

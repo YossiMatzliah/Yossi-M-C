@@ -21,7 +21,7 @@ struct uid
     unsigned char ip[LINUX_IP_SIZE];
 };
 
-typedef struct uid ilrd_uid_t;
+typedef struct uid uid_t;
 
 /**************************************************/
 
@@ -38,7 +38,7 @@ typedef struct uid ilrd_uid_t;
 * @Complexity
 *	O(1)
 */
-ilrd_uid_t UIDCreate(void); 
+uid_t UIDCreate(void); 
 
 /*
 * UIDIsSame Description:
@@ -53,7 +53,7 @@ ilrd_uid_t UIDCreate(void);
 * @Complexity
 *	O(1)
 */
-int UIDIsSame(ilrd_uid_t lhs, ilrd_uid_t rhs); 
+int UIDIsSame(uid_t lhs, uid_t rhs); 
 
 /*
 * UIDGetBad Description:
@@ -69,7 +69,7 @@ int UIDIsSame(ilrd_uid_t lhs, ilrd_uid_t rhs);
 * @Complexity
 *	O(1)
 */
-ilrd_uid_t UIDGetBad(void);
+uid_t UIDGetBad(void);
 
 #endif
 

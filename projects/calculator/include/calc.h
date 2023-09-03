@@ -4,8 +4,8 @@
  *	Date      : 09/04/2023			*
  ***********************************/
 
-#ifndef __ILRD__OL13940_CALC__
-#define __ILRD__OL13940_CALC__
+#ifndef __CALC_H__
+#define __CALC_H__
 
 #include <stddef.h>
 

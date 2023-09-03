@@ -3,10 +3,10 @@
 *	Reviewer  :	Lilach 	  			*
 *	Date      : 05/03/2023			*
 ************************************/
-#ifndef __ILRD_139_40__TASK_H__
-#define __ILRD_139_40__TASK_H__
+#ifndef __TASK_H__
+#define __TASK_H__
 
-#include "uid.h"			/* ilrd_uid_t */
+#include "uid.h"			/* uid_t */
 
 typedef struct task task_t;
 typedef int (*op_func_t)(void *);
@@ -106,12 +106,12 @@ time_t TaskGetInterval(task_t *task);
 *		If the pointer is invalid - behavior is undefined.
 *
 * @returns:
-*	Returns task's uis int ilrd_uid_t format.
+*	Returns task's uis int uid_t format.
 *
 * @Complexity
 *	O(1)
 */
-ilrd_uid_t TaskGetUID(task_t *task);
+uid_t TaskGetUID(task_t *task);
 
 /*
 * TaskGetFunc Description:

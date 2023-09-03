@@ -1,6 +1,6 @@
 
-#ifndef __ILRD__OL139_140_FIXED_SIZE_QUEUE__
-#define __ILRD__OL139_140_FIXED_SIZE_QUEUE__
+#ifndef __FIXED_SIZE_QUEUE__
+#define __FIXED_SIZE_QUEUE__
 
 #include <stddef.h> /*size_t*/
 

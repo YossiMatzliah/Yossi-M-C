@@ -1,5 +1,5 @@
-#ifndef ___ILRD__OL139_FSQ5__
-#define ___ILRD__OL139_FSQ5__
+#ifndef __FSQ5__
+#define __FSQ5__
 
 #include <stddef.h>
 

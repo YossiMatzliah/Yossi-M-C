@@ -234,8 +234,8 @@ void Sig2Handler(int signum, siginfo_t *info, void *context)
 static void *CreateSchedNdTasks(void *args)
 {
     sch_t *sched = SchCreate();
-    ilrd_uid_t uid_task1 = {0};
-    ilrd_uid_t uid_task2 = {0};
+    uid_t uid_task1 = {0};
+    uid_t uid_task2 = {0};
 
     if (NULL == sched)
     {

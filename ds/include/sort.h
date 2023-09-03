@@ -4,8 +4,8 @@
 *	Date      : 28/03/2023			*
 ************************************/
 
-#ifndef __ILRD_OL139_40_SORT_H__
-#define __ILRD_OL139_40_SORT_H__
+#ifndef __SORT_H__
+#define __SORT_H__
 
 #include <sys/types.h>	/* size_t, ssize_t */
 

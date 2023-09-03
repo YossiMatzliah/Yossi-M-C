@@ -4,8 +4,8 @@
 *	Date      : 20/02/2023			*
 ************************************/
 
-#ifndef __ILRD_OL139_40_SORTED_H__
-#define __ILRD_OL139_40_SORTED_H__
+#ifndef __SORTED_H__
+#define __SORTED_H__
 
 #include <stddef.h>
 

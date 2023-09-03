@@ -70,7 +70,7 @@ void SchDestroy(sch_t *scheduler)
 	free(scheduler);
 }
 
-ilrd_uid_t SchAddTask(sch_t *scheduler ,int (*op_func)(void *), void *params, time_t exec_time , time_t interval)
+uid_t SchAddTask(sch_t *scheduler ,int (*op_func)(void *), void *params, time_t exec_time , time_t interval)
 {
 	task_t *new_task = NULL;
 	
@@ -93,7 +93,7 @@ ilrd_uid_t SchAddTask(sch_t *scheduler ,int (*op_func)(void *), void *params, ti
 	return TaskGetUID(new_task);
 }
 
-void SchRemoveTask(sch_t *scheduler ,ilrd_uid_t task_uid)
+void SchRemoveTask(sch_t *scheduler ,uid_t task_uid)
 {
 	task_t *to_destroy = NULL;
 	
@@ -199,6 +199,6 @@ static int PriorityFunc(const void *data1, const void *data2)
 
 static int MatchFunc(const void *data1, const void *data2)
 {
-	return UIDIsSame(TaskGetUID((task_t *)data1), *(ilrd_uid_t *)data2);
+	return UIDIsSame(TaskGetUID((task_t *)data1), *(uid_t *)data2);
 }
 

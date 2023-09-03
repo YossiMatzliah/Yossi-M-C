@@ -4,8 +4,8 @@
 *	Reviewer  :	Oran				  *
 **************************************/
 
-#ifndef __ILRD_OL139_40_C_BUFFER_H__
-#define __ILRD_OL139_40_C_BUFFER_H__
+#ifndef __C_BUFFER_H__
+#define __C_BUFFER_H__
 
 #include <sys/types.h> /* ssize_t */
 typedef struct c_buffer c_buffer_t;

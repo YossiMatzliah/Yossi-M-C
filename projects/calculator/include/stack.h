@@ -1,5 +1,5 @@
-#ifndef __ILRD__OL139_40_STACK_H__
-#define __ILRD__OL139_40_STACK_H__
+#ifndef __STACK_H__
+#define __STACK_H__
 
 /*
 #This is an implementation of Stack using an array

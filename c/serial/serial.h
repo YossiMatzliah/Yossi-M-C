@@ -1,5 +1,5 @@
-#ifndef __ILRD139_40_SERIAL_H__
-#define __ILRD139_40_SERIAL_H__
+#ifndef __SERIAL_H__
+#define __SERIAL_H__
 #include <stdio.h> /* printf, FILE */
 
 typedef enum {SUCCESS = 0, FAILURE , FOPEN_ERR, FCLOSE_ERR, SAVE_FILE_ERR, LOAD_FILE_ERR} status_t;

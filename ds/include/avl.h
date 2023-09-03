@@ -4,8 +4,8 @@
 *	Date      : 27/03/2023			*
 ************************************/
 
-#ifndef __ILRD_139_40__AVL_H__
-#define __ILRD_139_40__AVL_H__
+#ifndef __AVL_H__
+#define __AVL_H__
 
 #include <stddef.h>	/* size_t */
 

@@ -4,8 +4,8 @@
 *	Date      : 19/04/2023			*
 ************************************/
 
-#ifndef __ILRD_OL139_40_PQ_BY_HEAP_H__
-#define __ILRD_OL139_40_PQ_BY_HEAP_H__
+#ifndef __PQ_BY_HEAP_H__
+#define __PQ_BY_HEAP_H__
 
 #include <stddef.h> /*size_t*/
 

@@ -4,8 +4,8 @@
 *	Date      : 29/03/2023			*
 ************************************/
 
-#ifndef __ILRD_139_40__FSM_H__
-#define __ILRD_139_40__FSM_H__
+#ifndef __FSM_H__
+#define __FSM_H__
 
 typedef enum machine_state
 {

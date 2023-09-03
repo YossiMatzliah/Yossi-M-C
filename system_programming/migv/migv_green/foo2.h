@@ -1,5 +1,5 @@
-#ifndef __ILRD_OL139_40_FOO2_H__
-#define __ILRD_OL139_40_FOO2_H__
+#ifndef __FOO2_H__
+#define __FOO2_H__
 
 
 void Foo2();
